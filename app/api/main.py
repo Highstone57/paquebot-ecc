@@ -10,7 +10,7 @@ Points d'entrée :
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
-import uvicorn, os, socket, subprocess, time
+import uvicorn, os, socket, subprocess, time, json
 
 from app.auth import SimpleAuth
 from app.auth.simple_auth import AuthError
@@ -124,6 +124,66 @@ def api_status():
         "system": {"uptime_h": uptime_h, "disk": disk, "ram": ram, "gpu": gpu},
     }
     _status_cache = {"time": time.time(), "data": data}
+    return data
+
+
+@app.get("/api/status/detailed")
+def api_status_detailed():
+    """Données détaillées pour le Journal de Bord + Console."""
+    global _status_cache2
+    try:
+        _status_cache2
+    except:
+        _status_cache2 = {"time": 0, "data": None}
+
+    if _status_cache2["data"] and time.time() - _status_cache2["time"] < 10:
+        return _status_cache2["data"]
+
+    base = api_status()
+
+    # Ollama : modèles disponibles
+    ollama_models = []
+    try:
+        r = subprocess.run(["curl", "-s", "--max-time", "2",
+                            "http://localhost:11434/api/tags"],
+                           capture_output=True, text=True, timeout=3)
+        if r.returncode == 0:
+            d = json.loads(r.stdout)
+            for m in d.get("models", []):
+                ollama_models.append({
+                    "name": m["name"],
+                    "size_gb": round(m.get("size", 0) / 1e9, 1),
+                })
+    except:
+        pass
+
+    # GitHub : derniers repos
+    github_repos = []
+    try:
+        r = subprocess.run(["gh", "repo", "list", "Highstone57",
+                            "--limit", "5", "--json", "name,description,updatedAt,url"],
+                           capture_output=True, text=True, timeout=5)
+        if r.returncode == 0:
+            github_repos = json.loads(r.stdout)
+    except:
+        pass
+
+    # Processeur
+    cpu = {}
+    try:
+        load = _read_proc("/proc/loadavg").split()
+        if load:
+            cpu = {"load_1m": load[0], "load_5m": load[1], "load_15m": load[2]}
+    except:
+        pass
+
+    data = {
+        **base,
+        "ollama_models": ollama_models,
+        "github_repos": github_repos,
+        "cpu": cpu,
+    }
+    _status_cache2 = {"time": time.time(), "data": data}
     return data
 
 @app.post("/auth/register", response_model=AuthResponse)

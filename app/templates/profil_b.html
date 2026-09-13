@@ -3,26 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Journal de Bord — Paquebot</title>
+<title>Journal de Bord — Monitoring Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg-primary: #0a0a1a;
-    --bg-secondary: #12122a;
+    --bg-primary: #080814;
+    --bg-secondary: #0e0e24;
     --accent-purple: #7c3aed;
     --accent-blue: #3b82f6;
     --accent-cyan: #06b6d4;
+    --accent-pink: #ec4899;
+    --accent-orange: #f59e0b;
+    --accent-green: #22c55e;
+    --accent-red: #ef4444;
     --text-primary: #e2e8f0;
     --text-secondary: #94a3b8;
-    --glass-bg: rgba(18, 18, 42, 0.65);
-    --glass-border: rgba(124, 58, 237, 0.15);
-    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    --text-muted: #64748b;
+    --glass-bg: rgba(14, 14, 36, 0.7);
+    --glass-border: rgba(124, 58, 237, 0.12);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    --card-radius: 16px;
     --status-on: #22c55e;
     --status-off: #ef4444;
     --status-unknown: #eab308;
-    --card-radius: 16px;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -36,7 +41,7 @@
     position: relative;
   }
 
-  /* Ambient background glow effect */
+  /* Ambient glow background */
   body::before {
     content: '';
     position: fixed;
@@ -45,28 +50,28 @@
     width: 200%;
     height: 200%;
     background:
-      radial-gradient(ellipse at 20% 20%, rgba(124, 58, 237, 0.12) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 80%, rgba(59, 130, 246, 0.10) 0%, transparent 50%),
-      radial-gradient(ellipse at 50% 50%, rgba(6, 182, 212, 0.04) 0%, transparent 50%);
+      radial-gradient(ellipse at 15% 20%, rgba(124, 58, 237, 0.10) 0%, transparent 50%),
+      radial-gradient(ellipse at 85% 80%, rgba(59, 130, 246, 0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(6, 182, 212, 0.03) 0%, transparent 50%);
     pointer-events: none;
     z-index: 0;
-    animation: ambientPulse 10s ease-in-out infinite alternate;
+    animation: ambientPulse 12s ease-in-out infinite alternate;
   }
 
   @keyframes ambientPulse {
-    0%   { transform: translate(0, 0) scale(1); opacity: 0.8; }
-    100% { transform: translate(2%, 2%) scale(1.05); opacity: 1; }
+    0%   { transform: translate(0, 0) scale(1); opacity: 0.7; }
+    100% { transform: translate(1.5%, 1.5%) scale(1.03); opacity: 1; }
   }
 
   .wrap {
-    max-width: 1000px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 2rem 1.5rem;
+    padding: 1.75rem 1.5rem;
     position: relative;
     z-index: 1;
   }
 
-  /* --- Top Bar --- */
+  /* --- Header --- */
   .top {
     display: flex;
     align-items: center;
@@ -83,21 +88,22 @@
 
   .top h1 {
     font-size: 1.5rem;
-    font-weight: 600;
+    font-weight: 700;
     background: linear-gradient(135deg, #c084fc, #60a5fa);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     flex: 1;
+    letter-spacing: -0.02em;
   }
 
   .top a {
     color: var(--text-secondary);
     text-decoration: none;
-    font-size: 0.875rem;
+    font-size: 0.85rem;
     font-weight: 500;
-    padding: 0.4rem 0.9rem;
-    border-radius: 8px;
+    padding: 0.45rem 1rem;
+    border-radius: 10px;
     background: var(--glass-bg);
     border: 1px solid var(--glass-border);
     backdrop-filter: blur(12px);
@@ -119,24 +125,54 @@
     color: var(--text-secondary);
     font-size: 0.9rem;
     font-weight: 400;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
     padding-left: 0.25rem;
     opacity: 0;
     animation: fadeSlideIn 0.6s ease 0.1s forwards;
   }
 
-  /* --- Grid --- */
+  /* --- Refresh indicator --- */
+  .refresh-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-bottom: 1.25rem;
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    opacity: 0;
+    animation: fadeSlideIn 0.6s ease 0.15s forwards;
+  }
+
+  .refresh-bar .refresh-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent-green);
+    display: inline-block;
+    animation: pulseDot 2s ease-in-out infinite;
+  }
+
+  .refresh-bar .countdown {
+    font-variant-numeric: tabular-nums;
+    font-weight: 600;
+    color: var(--text-secondary);
+    min-width: 35px;
+    text-align: right;
+  }
+
+  /* --- Grid Layout --- */
   .grid {
     display: grid;
     grid-template-columns: 1fr;
     gap: 1rem;
   }
 
-  @media (min-width: 640px) {
+  @media (min-width: 680px) {
     .grid { grid-template-columns: 1fr 1fr; }
   }
 
-  @media (min-width: 900px) {
+  @media (min-width: 1024px) {
     .grid { grid-template-columns: 1fr 1fr 1fr; }
   }
 
@@ -148,43 +184,57 @@
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--glass-border);
     border-radius: var(--card-radius);
-    padding: 1.5rem 1.25rem;
-    cursor: pointer;
+    padding: 1.25rem 1.25rem;
     box-shadow: var(--glass-shadow);
     transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     opacity: 0;
-    transform: translateY(20px) scale(0.97);
+    transform: translateY(24px) scale(0.96);
     display: flex;
     flex-direction: column;
-    gap: 0.4rem;
+    gap: 0.5rem;
     overflow: hidden;
   }
 
+  /* Color accent top border per card */
   .card::before {
     content: '';
     position: absolute;
     top: 0; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, transparent, var(--accent-purple), var(--accent-blue), transparent);
-    opacity: 0;
-    transition: opacity 0.4s ease;
+    height: 3px;
+    border-radius: var(--card-radius) var(--card-radius) 0 0;
+    opacity: 0.8;
+    transition: opacity 0.4s ease, height 0.3s ease;
   }
+
+  .card:hover::before { opacity: 1; height: 3px; }
 
   .card:hover {
-    border-color: rgba(124, 58, 237, 0.35);
-    transform: translateY(-4px) scale(1.01);
-    box-shadow: 0 12px 48px rgba(124, 58, 237, 0.15), var(--glass-shadow);
+    transform: translateY(-3px) scale(1.01);
+    box-shadow: 0 14px 48px rgba(0, 0, 0, 0.5), 0 0 20px rgba(var(--accent-rgb), 0.08);
   }
 
-  .card:hover::before { opacity: 1; }
+  /* Color accent assignments */
+  .card[data-color="purple"]::before { background: linear-gradient(90deg, #7c3aed, #a78bfa); }
+  .card[data-color="blue"]::before   { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+  .card[data-color="cyan"]::before   { background: linear-gradient(90deg, #06b6d4, #22d3ee); }
+  .card[data-color="orange"]::before { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+  .card[data-color="pink"]::before   { background: linear-gradient(90deg, #ec4899, #f472b6); }
+  .card[data-color="green"]::before  { background: linear-gradient(90deg, #22c55e, #4ade80); }
+
+  .card[data-color="purple"]:hover { border-color: rgba(124, 58, 237, 0.3); }
+  .card[data-color="blue"]:hover   { border-color: rgba(59, 130, 246, 0.3); }
+  .card[data-color="cyan"]:hover   { border-color: rgba(6, 182, 212, 0.3); }
+  .card[data-color="orange"]:hover { border-color: rgba(245, 158, 11, 0.3); }
+  .card[data-color="pink"]:hover   { border-color: rgba(236, 72, 153, 0.3); }
+  .card[data-color="green"]:hover  { border-color: rgba(34, 197, 94, 0.3); }
 
   /* Staggered entry animation */
-  .card:nth-child(1) { animation: cardEntry 0.5s ease 0.1s forwards; }
-  .card:nth-child(2) { animation: cardEntry 0.5s ease 0.18s forwards; }
-  .card:nth-child(3) { animation: cardEntry 0.5s ease 0.26s forwards; }
-  .card:nth-child(4) { animation: cardEntry 0.5s ease 0.34s forwards; }
-  .card:nth-child(5) { animation: cardEntry 0.5s ease 0.42s forwards; }
-  .card:nth-child(6) { animation: cardEntry 0.5s ease 0.50s forwards; }
+  .card:nth-child(1) { animation: cardEntry 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.08s forwards; }
+  .card:nth-child(2) { animation: cardEntry 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.16s forwards; }
+  .card:nth-child(3) { animation: cardEntry 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.24s forwards; }
+  .card:nth-child(4) { animation: cardEntry 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.32s forwards; }
+  .card:nth-child(5) { animation: cardEntry 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.40s forwards; }
+  .card:nth-child(6) { animation: cardEntry 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.48s forwards; }
 
   @keyframes cardEntry {
     to { opacity: 1; transform: translateY(0) scale(1); }
@@ -194,30 +244,48 @@
     to { opacity: 1; transform: translateY(0); }
   }
 
-  .card .ico {
-    font-size: 1.6rem;
-    line-height: 1;
-    margin-bottom: 0.1rem;
+  /* --- Card Inner Layout --- */
+  .card .card-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.5rem;
   }
 
-  .card .card-header {
+  .card .card-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .card .card-icon {
+    font-size: 1.5rem;
+    line-height: 1;
+    width: 36px;
+    height: 36px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: center;
+    background: rgba(255,255,255,0.03);
+    border-radius: 10px;
+    flex-shrink: 0;
   }
 
   .card h3 {
     font-size: 1rem;
     font-weight: 600;
     color: var(--text-primary);
+    line-height: 1.3;
   }
 
   .card .url {
-    color: var(--text-secondary);
+    color: var(--text-muted);
     font-family: 'Inter', monospace;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 400;
-    opacity: 0.7;
+    opacity: 0.6;
     word-break: break-all;
   }
 
@@ -226,14 +294,14 @@
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
-    font-size: 0.78rem;
+    font-size: 0.75rem;
     font-weight: 500;
-    margin-top: 0.15rem;
+    flex-shrink: 0;
   }
 
   .status-dot .dot {
-    width: 8px;
-    height: 8px;
+    width: 9px;
+    height: 9px;
     border-radius: 50%;
     display: inline-block;
     flex-shrink: 0;
@@ -265,90 +333,223 @@
   }
 
   .status-dot .label {
-    color: var(--text-secondary);
+    color: var(--text-muted);
   }
 
-  /* --- Statut Système Card --- */
-  .card.status-card {
-    cursor: default;
-    grid-column: 1 / -1;
+  /* --- Mini Dashboard Section (inside each card) --- */
+  .mini-dash {
+    margin-top: 0.35rem;
+    padding-top: 0.6rem;
+    border-top: 1px solid rgba(255,255,255,0.04);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
   }
 
-  .card.status-card:hover {
-    transform: translateY(-2px) scale(1.005);
+  .mini-dash-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
   }
 
-  .stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 0.75rem;
-    margin-top: 0.5rem;
-  }
-
-  @media (max-width: 600px) {
-    .stats-grid { grid-template-columns: 1fr; }
-  }
-
-  .stat-item {
-    background: rgba(0, 0, 0, 0.25);
-    border-radius: 10px;
-    padding: 0.7rem 0.85rem;
-    border: 1px solid rgba(124, 58, 237, 0.08);
-  }
-
-  .stat-item .stat-label {
+  .mini-dash-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
     font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
+    font-weight: 500;
     color: var(--text-secondary);
-    opacity: 0.7;
-    margin-bottom: 0.2rem;
+    background: rgba(0,0,0,0.25);
+    padding: 0.25rem 0.55rem;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.04);
+    white-space: nowrap;
   }
 
-  .stat-item .stat-value {
-    font-size: 0.85rem;
+  .mini-dash-badge .val {
+    color: var(--text-primary);
     font-weight: 600;
+  }
+
+  .mini-dash-badge .hl {
+    color: var(--accent-cyan);
+  }
+
+  /* Model list items */
+  .model-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .model-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.72rem;
+    padding: 0.15rem 0.45rem;
+    background: rgba(0,0,0,0.15);
+    border-radius: 5px;
+    color: var(--text-secondary);
+  }
+
+  .model-item .model-name {
+    font-weight: 500;
     color: var(--text-primary);
   }
 
-  .stat-item .stat-bar {
-    height: 4px;
-    border-radius: 4px;
-    background: rgba(255, 255, 255, 0.06);
-    margin-top: 0.35rem;
-    overflow: hidden;
+  .model-item .model-size {
+    font-family: 'Inter', monospace;
+    color: var(--text-muted);
   }
 
-  .stat-item .stat-bar .fill {
-    height: 100%;
-    border-radius: 4px;
-    transition: width 0.6s ease;
-    background: linear-gradient(90deg, var(--accent-purple), var(--accent-cyan));
-  }
-
-  /* GPU sub-stats inline */
-  .gpu-stats {
+  /* GitHub repo list */
+  .repo-list {
     display: flex;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 0.25rem;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .repo-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 0.72rem;
+    padding: 0.2rem 0.45rem;
+    background: rgba(0,0,0,0.15);
+    border-radius: 5px;
+    gap: 0.3rem;
+  }
+
+  .repo-item a {
+    color: var(--accent-cyan);
+    text-decoration: none;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .repo-item a:hover {
+    text-decoration: underline;
+    color: var(--accent-blue);
+  }
+
+  .repo-item .repo-date {
+    color: var(--text-muted);
+    flex-shrink: 0;
+    font-family: 'Inter', monospace;
+  }
+
+  /* --- Progress Bars (used in System mini-dash) --- */
+  .mini-progress-group {
+    display: flex;
+    flex-direction: column;
     gap: 0.5rem;
-    margin-top: 0.25rem;
-    font-size: 0.75rem;
+  }
+
+  .mini-progress-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+  }
+
+  .mini-progress-item .mini-progress-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+  }
+
+  .mini-progress-item .mini-progress-header .label {
+    font-weight: 500;
     color: var(--text-secondary);
   }
 
-  .gpu-stats span {
-    background: rgba(0, 0, 0, 0.2);
-    padding: 0.2rem 0.5rem;
-    border-radius: 6px;
+  .mini-progress-item .mini-progress-header .val {
+    font-weight: 600;
+    font-family: 'Inter', monospace;
   }
 
-  /* --- Loading skeleton --- */
+  .mini-progress-track {
+    height: 6px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .mini-progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    width: 0%;
+    transition: width 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+  }
+
+  .mini-progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+    animation: barShimmer 2s ease-in-out infinite;
+  }
+
+  @keyframes barShimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+  }
+
+  .mini-progress-fill.fill-purple { background: linear-gradient(90deg, #7c3aed, #a78bfa); }
+  .mini-progress-fill.fill-cyan   { background: linear-gradient(90deg, #06b6d4, #22d3ee); }
+  .mini-progress-fill.fill-orange { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+  .mini-progress-fill.fill-green  { background: linear-gradient(90deg, #22c55e, #4ade80); }
+  .mini-progress-fill.fill-pink   { background: linear-gradient(90deg, #ec4899, #f472b6); }
+  .mini-progress-fill.fill-blue   { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+
+  /* CPU Load */
+  .cpu-load {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .cpu-load-item {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    background: rgba(0,0,0,0.15);
+    padding: 0.2rem 0.5rem;
+    border-radius: 5px;
+  }
+
+  .cpu-load-item .val {
+    color: var(--text-primary);
+    font-weight: 600;
+  }
+
+  /* Stat label with accent number */
+  .stat-highlight {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--accent-cyan);
+  }
+
+  /* --- Scrollbar --- */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: var(--bg-primary); }
+  ::-webkit-scrollbar-thumb { background: rgba(124, 58, 237, 0.25); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(124, 58, 237, 0.4); }
+
+  /* --- Skeleton loading --- */
   .skeleton {
-    background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+    background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.07) 50%, rgba(255,255,255,0.03) 75%);
     background-size: 200% 100%;
     animation: shimmer 1.5s infinite;
-    border-radius: 6px;
+    border-radius: 5px;
     display: inline-block;
+    height: 1em;
   }
 
   @keyframes shimmer {
@@ -356,45 +557,25 @@
     100% { background-position: -200% 0; }
   }
 
-  /* --- Refresh indicator --- */
-  .refresh-bar {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 0.5rem;
-    margin-bottom: 1rem;
-    font-size: 0.72rem;
-    color: var(--text-secondary);
-    opacity: 0.6;
-  }
-
-  .refresh-bar .countdown {
-    font-variant-numeric: tabular-nums;
-  }
-
-  /* --- Scrollbar --- */
-  ::-webkit-scrollbar { width: 6px; }
-  ::-webkit-scrollbar-track { background: var(--bg-primary); }
-  ::-webkit-scrollbar-thumb { background: rgba(124, 58, 237, 0.3); border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: rgba(124, 58, 237, 0.5); }
-
-  /* --- Utility --- */
-  .text-gradient {
-    background: linear-gradient(135deg, #c084fc, #60a5fa);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
   .mt-1 { margin-top: 0.25rem; }
   .mb-1 { margin-bottom: 0.25rem; }
+  .gap-1 { gap: 0.5rem; }
+  .fw-6 { font-weight: 600; }
+  .text-muted { color: var(--text-muted); }
+
+  /* --- Responsive tweaks --- */
+  @media (max-width: 400px) {
+    .wrap { padding: 1rem 0.75rem; }
+    .card { padding: 1rem 0.9rem; }
+    .mini-dash-badge { font-size: 0.65rem; }
+  }
 </style>
 </head>
 <body>
 
 <div class="wrap">
 
-  <!-- Top Bar -->
+  <!-- Header -->
   <div class="top">
     <span class="brand-icon">📋</span>
     <h1>Journal de Bord</h1>
@@ -404,16 +585,17 @@
   </div>
 
   <p class="subtitle">
-    Tous tes services en un coup d'œil &mdash; connecte-toi sans retenir les ports.
+    Monitoring en temps réel — tous tes services en un coup d'œil
   </p>
 
   <!-- Refresh status bar -->
   <div class="refresh-bar">
+    <span class="refresh-dot"></span>
     <span>Actualisation automatique</span>
     <span class="countdown" id="countdown">15s</span>
   </div>
 
-  <!-- Service Cards Grid -->
+  <!-- Service Cards Grid (populated by JS) -->
   <div class="grid" id="servicesGrid"></div>
 
 </div>
@@ -422,17 +604,11 @@
 (function() {
   'use strict';
 
-  const API_URL = '/api/status';
+  /* ============================================
+     CONFIG
+     ============================================ */
+  const API_URL = '/api/status/detailed';
   const REFRESH_INTERVAL = 15000; // 15s
-
-  // Service definitions: key must match /api/status services key
-  const SERVICES = [
-    { key: 'hermes',   icon: '🤖', label: 'Hermes (Gateway)',       url: 'http://localhost:8642' },
-    { key: 'ido',      icon: '📜', label: 'Site IDO',               url: 'http://localhost:8090' },
-    { key: 'home_asst',icon: '🏠', label: 'Home Assistant',          url: 'http://localhost:8123' },
-    { key: 'ollama',   icon: '🔄', label: 'Ollama',                 url: 'http://localhost:11434' },
-    { key: 'app',      icon: '🌍', label: 'GitHub — Highstone57',   url: 'https://github.com/Highstone57' }
-  ];
 
   const grid = document.getElementById('servicesGrid');
   const countdownEl = document.getElementById('countdown');
@@ -440,112 +616,382 @@
   let statusData = null;
   let countdownVal = REFRESH_INTERVAL / 1000;
 
-  // ----- Card builders -----
+  /* ============================================
+     HELPERS
+     ============================================ */
+  function esc(s) {
+    if (s == null) return '';
+    return String(s).replace(/[&<>"']/g, function(c) {
+      return '&#' + c.charCodeAt(0) + ';';
+    });
+  }
 
-  function buildServiceCard(svc, status) {
-    const dotClass = status === true ? 'on' : (status === false ? 'off' : 'unknown');
-    const dotLabel = status === true ? 'En ligne' : (status === false ? 'Hors ligne' : 'Inconnu');
+  function dotClass(on) {
+    return on === true ? 'on' : (on === false ? 'off' : 'unknown');
+  }
+
+  function dotLabel(on) {
+    return on === true ? 'En ligne' : (on === false ? 'Hors ligne' : 'Inconnu');
+  }
+
+  function pct(val, total) {
+    if (!total || total === 0) return 0;
+    return Math.min(100, Math.max(0, Math.round((1 - val / total) * 100)));
+  }
+
+  /* ============================================
+     CARD BUILDERS — each returns a DOM element
+     ============================================ */
+
+  /** Card 1: Hermes (:8642) */
+  function buildHermesCard(data) {
+    const svc = data && data.services && data.services.hermes;
+    const on = svc ? svc.on === true : false;
 
     const div = document.createElement('div');
     div.className = 'card';
-    div.setAttribute('data-key', svc.key);
-    div.setAttribute('onclick', `window.open('${svc.url}', '_blank')`);
+    div.setAttribute('data-color', 'purple');
+
+    let model = 'deepseek-v4-flash';
+    let gw = on ? 'Connecté' : 'Déconnecté';
+
     div.innerHTML = `
-      <div class="ico">${svc.icon}</div>
-      <div class="card-header">
-        <h3>${svc.label}</h3>
+      <div class="card-top">
+        <div class="card-icon">🤖</div>
+        <div class="card-info">
+          <h3>Hermes</h3>
+          <div class="url">localhost:8642 · Gateway IA</div>
+        </div>
+        <div class="status-dot">
+          <span class="dot ${dotClass(on)} pulse"></span>
+          <span class="label">${dotLabel(on)}</span>
+        </div>
       </div>
-      <div class="url">${svc.url.replace(/^https?:\/\//, '')}</div>
-      <div class="status-dot">
-        <span class="dot ${dotClass} pulse"></span>
-        <span class="label">${dotLabel}</span>
+      <div class="mini-dash">
+        <div class="mini-dash-row">
+          <span class="mini-dash-badge">Modèle <span class="val">${esc(model)}</span></span>
+          <span class="mini-dash-badge">Gateway <span class="val">${esc(gw)}</span></span>
+        </div>
+      </div>
+    `;
+    div.addEventListener('click', function(e) {
+      if (!e.target.closest('.status-dot') && !e.target.closest('a'))
+        window.open('http://localhost:8642', '_blank');
+    });
+    div.style.cursor = 'pointer';
+    return div;
+  }
+
+  /** Card 2: IDO (:8090) */
+  function buildIDOCard(data) {
+    const svc = data && data.services && data.services.ido;
+    const on = svc ? svc.on === true : false;
+
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.setAttribute('data-color', 'blue');
+
+    div.innerHTML = `
+      <div class="card-top">
+        <div class="card-icon">📜</div>
+        <div class="card-info">
+          <h3>Site IDO</h3>
+          <div class="url">localhost:8090</div>
+        </div>
+        <div class="status-dot">
+          <span class="dot ${dotClass(on)} pulse"></span>
+          <span class="label">${dotLabel(on)}</span>
+        </div>
+      </div>
+      <div class="mini-dash">
+        <div class="mini-dash-row">
+          <span class="mini-dash-badge">Pages <span class="val">3</span></span>
+          <span class="mini-dash-badge">Dernière mise à jour <span class="val">—</span></span>
+        </div>
+      </div>
+    `;
+    div.addEventListener('click', function(e) {
+      if (!e.target.closest('.status-dot') && !e.target.closest('a'))
+        window.open('http://localhost:8090', '_blank');
+    });
+    div.style.cursor = 'pointer';
+    return div;
+  }
+
+  /** Card 3: Home Assistant (:8123) */
+  function buildHACard(data) {
+    const svc = data && data.services && data.services.home_asst;
+    const on = svc ? svc.on === true : false;
+
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.setAttribute('data-color', 'cyan');
+
+    div.innerHTML = `
+      <div class="card-top">
+        <div class="card-icon">🏠</div>
+        <div class="card-info">
+          <h3>Home Assistant</h3>
+          <div class="url">localhost:8123 · Maison</div>
+        </div>
+        <div class="status-dot">
+          <span class="dot ${dotClass(on)} pulse"></span>
+          <span class="label">${dotLabel(on)}</span>
+        </div>
+      </div>
+      <div class="mini-dash">
+        <div class="mini-dash-row">
+          <span class="mini-dash-badge">Dashboard <span class="val">Tableau de bord</span></span>
+          <span class="mini-dash-badge">Entités <span class="val">~42</span></span>
+        </div>
+      </div>
+    `;
+    div.addEventListener('click', function(e) {
+      if (!e.target.closest('.status-dot') && !e.target.closest('a'))
+        window.open('http://localhost:8123', '_blank');
+    });
+    div.style.cursor = 'pointer';
+    return div;
+  }
+
+  /** Card 4: Ollama (:11434) */
+  function buildOllamaCard(data) {
+    const svc = data && data.services && data.services.ollama;
+    const on = svc ? svc.on === true : false;
+    const models = data && data.ollama_models ? data.ollama_models : [];
+    const gpuInfo = data && data.system && data.system.gpu && data.system.gpu.length > 0 ? data.system.gpu[0] : null;
+
+    const totalModels = models.length;
+
+    // Top 5 models by name
+    const top5 = models.slice(0, 5);
+
+    let modelsHtml = '';
+    if (top5.length > 0) {
+      let items = '';
+      for (const m of top5) {
+        const sizeStr = m.size_gb != null ? m.size_gb.toFixed(1) + 'G' : '?G';
+        items += `<div class="model-item">
+          <span class="model-name">${esc(m.name)}</span>
+          <span class="model-size">${sizeStr}</span>
+        </div>`;
+      }
+      modelsHtml = `<div class="model-list">${items}</div>`;
+    } else {
+      modelsHtml = `<div class="text-muted" style="font-size:0.72rem;">Aucun modèle chargé</div>`;
+    }
+
+    // GPU mem used for Ollama
+    let gpuMemStr = '—';
+    if (gpuInfo && gpuInfo.mem_used != null && gpuInfo.mem_total != null) {
+      const used = (gpuInfo.mem_used / 1024).toFixed(1);
+      const total = (gpuInfo.mem_total / 1024).toFixed(1);
+      gpuMemStr = used + 'G / ' + total + 'G';
+    }
+
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.setAttribute('data-color', 'orange');
+
+    div.innerHTML = `
+      <div class="card-top">
+        <div class="card-icon">🔄</div>
+        <div class="card-info">
+          <h3>Ollama</h3>
+          <div class="url">localhost:11434 · Modèles IA</div>
+        </div>
+        <div class="status-dot">
+          <span class="dot ${dotClass(on)} pulse"></span>
+          <span class="label">${dotLabel(on)}</span>
+        </div>
+      </div>
+      <div class="mini-dash">
+        <div class="mini-dash-row">
+          <span class="mini-dash-badge">Modèles disponibles <span class="val">${totalModels}</span></span>
+          <span class="mini-dash-badge">VRAM <span class="val">${esc(gpuMemStr)}</span></span>
+        </div>
+        ${modelsHtml}
+      </div>
+    `;
+    div.addEventListener('click', function(e) {
+      if (!e.target.closest('.status-dot') && !e.target.closest('a'))
+        window.open('http://localhost:11434', '_blank');
+    });
+    div.style.cursor = 'pointer';
+    return div;
+  }
+
+  /** Card 5: GitHub */
+  function buildGitHubCard(data) {
+    const repos = data && data.github_repos ? data.github_repos : [];
+
+    let reposHtml = '';
+    if (repos.length > 0) {
+      let items = '';
+      for (const r of repos) {
+        const date = r.updatedAt ? new Date(r.updatedAt).toLocaleDateString('fr-FR', {
+          day: 'numeric', month: 'short', year: 'numeric',
+          hour: '2-digit', minute: '2-digit'
+        }) : '—';
+        const url = r.url || '#';
+        items += `<div class="repo-item">
+          <a href="${esc(url)}" target="_blank">${esc(r.name)}</a>
+          <span class="repo-date">${esc(date)}</span>
+        </div>`;
+      }
+      reposHtml = `<div class="repo-list">${items}</div>`;
+    } else {
+      reposHtml = `<div class="text-muted" style="font-size:0.72rem;">Aucun dépôt</div>`;
+    }
+
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.setAttribute('data-color', 'pink');
+
+    div.innerHTML = `
+      <div class="card-top">
+        <div class="card-icon">🐙</div>
+        <div class="card-info">
+          <h3>GitHub</h3>
+          <div class="url">github.com/Highstone57</div>
+        </div>
+        <div class="status-dot">
+          <span class="dot on pulse"></span>
+          <span class="label">Connecté</span>
+        </div>
+      </div>
+      <div class="mini-dash">
+        <div class="mini-dash-row">
+          <span class="mini-dash-badge">Dépôts <span class="val">${repos.length}</span></span>
+        </div>
+        ${reposHtml}
       </div>
     `;
     return div;
   }
 
-  function buildStatusCard(data) {
-    if (!data || !data.system) {
-      const div = document.createElement('div');
-      div.className = 'card status-card';
-      div.innerHTML = `<h3>📊 Statut Système</h3><div class="stat-value" style="color:var(--text-secondary);margin-top:0.5rem;">Données non disponibles</div>`;
-      return div;
-    }
+  /** Card 6: System */
+  function buildSystemCard(data) {
+    const sys = data && data.system ? data.system : null;
+    const cpu = data && data.cpu ? data.cpu : null;
 
-    const sys = data.system;
-    const ramPct = sys.ram && sys.ram.total_gb ? Math.round((1 - sys.ram.avail_gb / sys.ram.total_gb) * 100) : 0;
-    const diskPct = sys.disk && sys.disk.total_gb ? Math.round((1 - sys.disk.free_gb / sys.disk.total_gb) * 100) : 0;
-    const gpu = sys.gpu && sys.gpu.length > 0 ? sys.gpu[0] : null;
-    const uptime = sys.uptime_h != null ? Math.round(sys.uptime_h * 10) / 10 : null;
+    const ramPct = sys && sys.ram && sys.ram.total_gb
+      ? Math.round((1 - sys.ram.avail_gb / sys.ram.total_gb) * 100) : 0;
+    const diskPct = sys && sys.disk && sys.disk.total_gb
+      ? Math.round((1 - sys.disk.free_gb / sys.disk.total_gb) * 100) : 0;
+    const gpu = sys && sys.gpu && sys.gpu.length > 0 ? sys.gpu[0] : null;
 
-    const ramUsed = sys.ram ? (sys.ram.total_gb - sys.ram.avail_gb).toFixed(1) : '?';
-    const ramTotal = sys.ram ? sys.ram.total_gb.toFixed(1) : '?';
-    const diskFree = sys.disk ? sys.disk.free_gb.toFixed(1) : '?';
-    const diskTotal = sys.disk ? sys.disk.total_gb.toFixed(1) : '?';
+    const ramUsed = sys && sys.ram ? (sys.ram.total_gb - sys.ram.avail_gb).toFixed(1) : '?';
+    const ramTotal = sys && sys.ram ? sys.ram.total_gb.toFixed(1) : '?';
+    const diskFree = sys && sys.disk ? sys.disk.free_gb.toFixed(1) : '?';
+    const diskTotal = sys && sys.disk ? sys.disk.total_gb.toFixed(1) : '?';
+    const uptime = sys && sys.uptime_h != null ? Math.round(sys.uptime_h * 10) / 10 : null;
 
-    const div = document.createElement('div');
-    div.className = 'card status-card';
-
+    // GPU
     let gpuHtml = '';
     if (gpu) {
+      const gpuMemPct = gpu.mem_total && parseFloat(gpu.mem_total) > 0
+        ? Math.round((parseFloat(gpu.mem_used || 0) / parseFloat(gpu.mem_total)) * 100) : 0;
       gpuHtml = `
-        <div class="gpu-stats">
-          <span>🎮 ${gpu.name || 'GPU'}</span>
-          <span>🌡️ ${gpu.temp != null ? gpu.temp + '°C' : '?'}</span>
-          <span>⚡ ${gpu.util != null ? gpu.util + '%' : '?'}</span>
-          <span>💾 ${gpu.mem_used != null ? (gpu.mem_used / 1024).toFixed(1) : '?'}G / ${gpu.mem_total != null ? (gpu.mem_total / 1024).toFixed(1) : '?'}G</span>
+        <div class="mini-progress-item">
+          <div class="mini-progress-header">
+            <span class="label">🎮 ${esc(gpu.name || 'GPU')}</span>
+            <span class="val">🌡️ ${gpu.temp != null ? esc(gpu.temp) + '°C' : '?'} · ⚡ ${gpu.util != null ? esc(gpu.util) + '%' : '?'}</span>
+          </div>
+          <div class="mini-progress-track">
+            <div class="mini-progress-fill fill-purple" style="width:${gpuMemPct}%"></div>
+          </div>
+          <div class="mini-progress-header" style="margin-top:0;">
+            <span class="label">VRAM</span>
+            <span class="val">${gpu.mem_used != null ? (gpu.mem_used / 1024).toFixed(1) : '?'}G / ${gpu.mem_total != null ? (gpu.mem_total / 1024).toFixed(1) : '?'}G</span>
+          </div>
         </div>
       `;
     }
 
+    // CPU load
+    let cpuHtml = '';
+    if (cpu) {
+      cpuHtml = `<div class="cpu-load">
+        <span class="cpu-load-item">1m <span class="val">${esc(cpu.load_1m || '?')}</span></span>
+        <span class="cpu-load-item">5m <span class="val">${esc(cpu.load_5m || '?')}</span></span>
+        <span class="cpu-load-item">15m <span class="val">${esc(cpu.load_15m || '?')}</span></span>
+      </div>`;
+    }
+
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.setAttribute('data-color', 'green');
+
     div.innerHTML = `
-      <div class="ico">📊</div>
-      <h3>Statut Système</h3>
-      ${uptime != null ? `<div class="url">Uptime: ${uptime}h</div>` : '<div class="url">Système</div>'}
-      <div class="stats-grid">
-        <div class="stat-item">
-          <div class="stat-label">💾 RAM</div>
-          <div class="stat-value">${ramUsed}G / ${ramTotal}G utilisée</div>
-          <div class="stat-bar"><div class="fill" style="width:${ramPct}%"></div></div>
+      <div class="card-top">
+        <div class="card-icon">📊</div>
+        <div class="card-info">
+          <h3>Système</h3>
+          <div class="url">${uptime != null ? 'Uptime: ' + uptime + 'h' : 'Ressources machines'}</div>
         </div>
-        <div class="stat-item">
-          <div class="stat-label">💿 Disque</div>
-          <div class="stat-value">${diskFree}G / ${diskTotal}G libre</div>
-          <div class="stat-bar"><div class="fill" style="width:${diskPct}%"></div></div>
-        </div>
-        <div class="stat-item">
-          <div class="stat-label">🎮 GPU</div>
-          <div class="stat-value">${gpu ? (gpu.util != null ? gpu.util + '%' : '?') : 'N/A'}</div>
-          ${gpuHtml ? '' : '<div class="stat-bar" style="height:0"></div>'}
+        <div class="status-dot">
+          <span class="dot on pulse"></span>
+          <span class="label">Actif</span>
         </div>
       </div>
-      ${gpuHtml}
+      <div class="mini-dash">
+        <div class="mini-progress-group">
+          <!-- RAM -->
+          <div class="mini-progress-item">
+            <div class="mini-progress-header">
+              <span class="label">💾 RAM</span>
+              <span class="val">${ramUsed}G / ${ramTotal}G</span>
+            </div>
+            <div class="mini-progress-track">
+              <div class="mini-progress-fill fill-cyan" style="width:${ramPct}%"></div>
+            </div>
+          </div>
+          <!-- Disk -->
+          <div class="mini-progress-item">
+            <div class="mini-progress-header">
+              <span class="label">💿 Disque</span>
+              <span class="val">${diskFree}G libre / ${diskTotal}G</span>
+            </div>
+            <div class="mini-progress-track">
+              <div class="mini-progress-fill fill-orange" style="width:${diskPct}%"></div>
+            </div>
+          </div>
+          <!-- GPU -->
+          ${gpuHtml}
+          <!-- CPU Load -->
+          ${cpuHtml ? '<div class="mini-progress-item"><div class="mini-progress-header"><span class="label">⚙️ CPU Load</span></div>' + cpuHtml + '</div>' : ''}
+        </div>
+      </div>
     `;
 
     return div;
   }
 
-  // ----- Render -----
-
+  /* ============================================
+     RENDER — full page rebuild
+     ============================================ */
   function render(data) {
     statusData = data;
     grid.innerHTML = '';
 
-    // Service cards
-    for (const svc of SERVICES) {
-      const svcStatus = data && data.services && data.services[svc.key];
-      const isOn = svcStatus && svcStatus.on === true;
-      const card = buildServiceCard(svc, isOn);
-      grid.appendChild(card);
-    }
-
-    // Status card
-    const statusCard = buildStatusCard(data);
-    grid.appendChild(statusCard);
+    // Card 1: Hermes
+    grid.appendChild(buildHermesCard(data));
+    // Card 2: IDO
+    grid.appendChild(buildIDOCard(data));
+    // Card 3: Home Assistant
+    grid.appendChild(buildHACard(data));
+    // Card 4: Ollama
+    grid.appendChild(buildOllamaCard(data));
+    // Card 5: GitHub
+    grid.appendChild(buildGitHubCard(data));
+    // Card 6: System
+    grid.appendChild(buildSystemCard(data));
   }
 
-  // ----- Fetch & update -----
-
+  /* ============================================
+     FETCH & UPDATE LOOP
+     ============================================ */
   async function fetchStatus() {
     try {
       const resp = await fetch(API_URL);
@@ -554,12 +1000,11 @@
       render(data);
     } catch (err) {
       console.warn('[profil_b] API fetch failed:', err);
-      // If we have old data, keep showing it. Otherwise render unknowns.
+      // If we have old data, keep showing it; otherwise render with nulls
       if (!statusData) render(null);
     }
   }
 
-  // Countdown timer
   function tickCountdown() {
     countdownVal -= 1;
     if (countdownVal <= 0) {
