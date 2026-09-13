@@ -567,28 +567,131 @@ body::before{
         <span class="chevron">&#x25BC;</span>
       </div>
       <div class="accord-body" id="savoir-body">
-        <div class="row">
-          <span class="label">&#x1F310; IDO Service &amp; Port</span>
-          <span class="value c-cyan" id="savoir-ido-port">—</span>
+        <!-- Status bar compacte -->
+        <div style="display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem;font-size:.75rem;"
+             id="savoir-status-bar">
+          <span style="background:var(--glass);padding:2px 10px;border-radius:6px;">
+            IDO: <strong id="savoir-ido-port">—</strong>
+            <span id="savoir-ido-status" style="color:var(--red);">&#x25CF;</span>
+          </span>
+          <span style="background:var(--glass);padding:2px 10px;border-radius:6px;">
+            Connaissances: <strong id="savoir-count" class="c-cyan">—</strong>
+          </span>
+          <span style="background:var(--glass);padding:2px 10px;border-radius:6px;">
+            MAJ: <strong id="savoir-update" class="c-purple">cron 6h</strong>
+          </span>
         </div>
-        <div class="row">
-          <span class="label">&#x1F9F0; Statut IDO</span>
-          <span class="value" id="savoir-ido-status">—</span>
+
+        <!-- Tétraèdre Fiske×Haidt — 6 livres, 4 dimensions -->
+        <div class="tetra-container" style="position:relative;width:100%;padding-top:75%;overflow:hidden;">
+          <svg id="tetra-svg" viewBox="0 0 400 400" style="position:absolute;inset:0;width:100%;height:100%;"
+               xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <filter id="glow"><feGaussianBlur stdDeviation="2" result="blur"/>
+                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+              </filter>
+              <radialGradient id="grad-top" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#22d3ee" stop-opacity=".6"/>
+                <stop offset="100%" stop-color="#22d3ee" stop-opacity="0"/>
+              </radialGradient>
+              <radialGradient id="grad-left" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#a855f7" stop-opacity=".6"/>
+                <stop offset="100%" stop-color="#a855f7" stop-opacity="0"/>
+              </radialGradient>
+              <radialGradient id="grad-right" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#f97316" stop-opacity=".6"/>
+                <stop offset="100%" stop-color="#f97316" stop-opacity="0"/>
+              </radialGradient>
+              <radialGradient id="grad-center" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#22c55e" stop-opacity=".6"/>
+                <stop offset="100%" stop-color="#22c55e" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+
+            <!-- Arêtes (6 livres) — traités avec glow -->
+            <!-- Livre 1: Top → Left -->
+            <line x1="200" y1="40" x2="60" y2="280"
+                  stroke="url(#grad-top)" stroke-width="2.5" stroke-dasharray="8,4" opacity=".7"
+                  class="tetra-edge" data-edge="1"/>
+            <!-- Livre 2: Top → Right -->
+            <line x1="200" y1="40" x2="340" y2="280"
+                  stroke="url(#grad-top)" stroke-width="2.5" stroke-dasharray="8,4" opacity=".7"
+                  class="tetra-edge" data-edge="2"/>
+            <!-- Livre 3: Top → Center -->
+            <line x1="200" y1="40" x2="200" y2="170"
+                  stroke="url(#grad-top)" stroke-width="2.5" stroke-dasharray="8,4" opacity=".7"
+                  class="tetra-edge" data-edge="3"/>
+            <!-- Livre 4: Left → Right -->
+            <line x1="60" y1="280" x2="340" y2="280"
+                  stroke="url(#grad-left)" stroke-width="2.5" stroke-dasharray="8,4" opacity=".7"
+                  class="tetra-edge" data-edge="4"/>
+            <!-- Livre 5: Left → Center -->
+            <line x1="60" y1="280" x2="200" y2="170"
+                  stroke="url(#grad-left)" stroke-width="2.5" stroke-dasharray="8,4" opacity=".7"
+                  class="tetra-edge" data-edge="5"/>
+            <!-- Livre 6: Right → Center -->
+            <line x1="340" y1="280" x2="200" y2="170"
+                  stroke="url(#grad-right)" stroke-width="2.5" stroke-dasharray="8,4" opacity=".7"
+                  class="tetra-edge" data-edge="6"/>
+
+            <!-- Étiquettes des arêtes -->
+            <text x="130" y="175" class="edge-label" font-size="8" fill="#8892b0" text-anchor="middle"
+                  opacity="0" data-edge="1">Livre 1</text>
+            <text x="270" y="175" class="edge-label" font-size="8" fill="#8892b0" text-anchor="middle"
+                  opacity="0" data-edge="2">Livre 2</text>
+            <text x="200" y="100" class="edge-label" font-size="8" fill="#8892b0" text-anchor="middle"
+                  opacity="0" data-edge="3">Livre 3</text>
+            <text x="200" y="295" class="edge-label" font-size="8" fill="#8892b0" text-anchor="middle"
+                  opacity="0" data-edge="4">Livre 4</text>
+            <text x="120" y="230" class="edge-label" font-size="8" fill="#8892b0" text-anchor="middle"
+                  opacity="0" data-edge="5">Livre 5</text>
+            <text x="280" y="230" class="edge-label" font-size="8" fill="#8892b0" text-anchor="middle"
+                  opacity="0" data-edge="6">Livre 6</text>
+
+            <!-- Nœuds (4 dimensions) -->
+            <!-- Top: Fiction -->
+            <circle cx="200" cy="40" r="18" class="tetra-node" data-node="top"
+                    fill="rgba(34,211,238,.25)" stroke="#22d3ee" stroke-width="2" filter="url(#glow)"
+                    style="cursor:pointer;transition:r .2s;"/>
+            <text x="200" y="24" font-size="9" fill="#22d3ee" text-anchor="middle" font-weight="600">FICTION</text>
+            <text x="200" y="55" font-size="7" fill="#8892b0" text-anchor="middle">Le récit</text>
+
+            <!-- Left: Alignement -->
+            <circle cx="60" cy="280" r="18" class="tetra-node" data-node="left"
+                    fill="rgba(168,85,247,.25)" stroke="#a855f7" stroke-width="2" filter="url(#glow)"
+                    style="cursor:pointer;transition:r .2s;"/>
+            <text x="42" y="285" font-size="9" fill="#a855f7" text-anchor="end" font-weight="600">ALIGNEMENT</text>
+            <text x="42" y="300" font-size="7" fill="#8892b0" text-anchor="end">Les valeurs</text>
+
+            <!-- Right: ??? -->
+            <circle cx="340" cy="280" r="18" class="tetra-node" data-node="right"
+                    fill="rgba(249,115,22,.25)" stroke="#f97316" stroke-width="2" filter="url(#glow)"
+                    style="cursor:pointer;transition:r .2s;"/>
+            <text x="362" y="285" font-size="9" fill="#f97316" text-anchor="start" font-weight="600">? ? ?</text>
+            <text x="362" y="300" font-size="7" fill="#8892b0" text-anchor="start">À définir</text>
+
+            <!-- Center: ??? -->
+            <circle cx="200" cy="170" r="18" class="tetra-node" data-node="center"
+                    fill="rgba(34,197,94,.25)" stroke="#22c55e" stroke-width="2" filter="url(#glow)"
+                    style="cursor:pointer;transition:r .2s;"/>
+            <text x="200" y="166" font-size="9" fill="#22c55e" text-anchor="middle" font-weight="600">? ? ?</text>
+            <text x="200" y="183" font-size="7" fill="#8892b0" text-anchor="middle">À définir</text>
+          </svg>
         </div>
-        <div class="row">
-          <span class="label">&#x1F4CA; Connaissances chargées</span>
-          <span class="value c-cyan" id="savoir-count">—</span>
+
+        <!-- Légende interactive -->
+        <div id="tetra-legend" class="tetra-legend"
+             style="margin-top:.5rem;padding:.5rem;background:var(--glass);border-radius:8px;font-size:.72rem;text-align:center;color:var(--text-dim);min-height:2.2rem;">
+          ✦ Survole un nœud ou une arête pour voir les détails
         </div>
-        <div class="row">
-          <span class="label">&#x1F504; Dernière actualisation</span>
-          <span class="value c-purple" id="savoir-update">cron 6h</span>
-        </div>
-        <div style="margin-top:.5rem;border-top:1px solid rgba(255,255,255,.04);padding-top:.5rem;text-align:center;">
-          <a href="https://ido.nousresearch.com" target="_blank" rel="noopener"
+
+        <!-- Lien vers IDO -->
+        <div style="margin-top:.6rem;text-align:center;">
+          <a href="http://localhost:8090/connaissances.html" target="_blank" rel="noopener"
              style="color:var(--cyan);font-size:.78rem;text-decoration:none;display:inline-flex;align-items:center;gap:.35rem;
                     padding:.35rem .7rem;border-radius:8px;background:var(--cyan-dim);border:1px solid rgba(34,211,238,.15);
                     transition:all .25s;font-weight:500;">
-            &#x1F30D; Accéder au site IDO
+            &#x1F30D; Voir la carte des connaissances IDO
           </a>
         </div>
       </div>
@@ -1026,11 +1129,107 @@ async function fetchStatus(){
   }
 }
 
-// Initial fetch + poll every 15s
-fetchStatus();
-setInterval(fetchStatus, 15000);
+// ── Tétraèdre interactif ────────────────────────────
+  (function initTetra() {
+    const svg = document.getElementById('tetra-svg');
+    if (!svg) return;
+    const legend = document.getElementById('tetra-legend');
+    const nodes = svg.querySelectorAll('.tetra-node');
+    const edges = svg.querySelectorAll('.tetra-edge');
+    const labels = svg.querySelectorAll('.edge-label');
+
+    const nodeData = {
+      top:    { name: 'FICTION',     desc: 'Le récit — la narration comme vecteur de sens' },
+      left:   { name: 'ALIGNEMENT',  desc: 'Les valeurs — l\'axe Fiske×Haidt des morales' },
+      right:  { name: '? ? ?',       desc: 'À définir dans l\'œuvre' },
+      center: { name: '? ? ?',       desc: 'À définir dans l\'œuvre' },
+    };
+
+    edges.forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        const n = el.dataset.edge;
+        const label = document.querySelector(`.edge-label[data-edge="${n}"]`);
+        if (label) {
+          labels.forEach(l => l.setAttribute('opacity', '0'));
+          label.setAttribute('opacity', '1');
+        }
+        edges.forEach(e => e.setAttribute('opacity', '0.3'));
+        el.setAttribute('opacity', '0.9');
+        el.setAttribute('stroke-width', '4');
+        legend.innerHTML = `✦ <strong>Livre ${n}</strong> — une des 6 arêtes du tétraèdre entre deux dimensions`;
+      });
+      el.addEventListener('mouseleave', () => {
+        labels.forEach(l => l.setAttribute('opacity', '0'));
+        edges.forEach(e => { e.setAttribute('opacity', '0.7'); e.setAttribute('stroke-width', '2.5'); });
+        legend.innerHTML = '✦ Survole un nœud ou une arête pour voir les détails';
+      });
+    });
+
+    nodes.forEach(el => {
+      el.addEventListener('mouseenter', () => {
+        const key = el.dataset.node;
+        const data = nodeData[key];
+        if (!data) return;
+        el.setAttribute('r', '22');
+        const connected = getConnectedEdges(key);
+        edges.forEach(e => {
+          if (connected.includes(e.dataset.edge)) {
+            e.setAttribute('opacity', '0.9');
+            e.setAttribute('stroke-width', '4');
+          } else {
+            e.setAttribute('opacity', '0.15');
+          }
+        });
+        legend.innerHTML = `✦ <strong>${data.name}</strong> — ${data.desc}`;
+      });
+      el.addEventListener('mouseleave', () => {
+        el.setAttribute('r', '18');
+        edges.forEach(e => { e.setAttribute('opacity', '0.7'); e.setAttribute('stroke-width', '2.5'); });
+        legend.innerHTML = '✦ Survole un nœud ou une arête pour voir les détails';
+      });
+    });
+
+    function getConnectedEdges(node) {
+      const map = {
+        top:    ['1','2','3'],
+        left:   ['1','4','5'],
+        right:  ['2','4','6'],
+        center: ['3','5','6'],
+      };
+      return map[node] || [];
+    }
+  })();
+
+  // ── Savoir status update ──
+  const savoirPort = document.getElementById('savoir-ido-port');
+  const savoirStatus = document.getElementById('savoir-ido-status');
+  const savoirCount = document.getElementById('savoir-count');
+  const savoirUpdate = document.getElementById('savoir-update');
+  function updateSavoir(data) {
+    if (!data?.services) return;
+    const ido = data.services.ido;
+    if (savoirPort && ido) savoirPort.textContent = `:${ido.port}`;
+    if (savoirStatus && ido) {
+      savoirStatus.style.color = ido.on ? '#34d399' : '#f87171';
+      savoirStatus.textContent = ido.on ? '\u25CF En ligne' : '\u25CF Hors ligne';
+    }
+    if (savoirCount && data.ollama_models) {
+      savoirCount.textContent = `${data.ollama_models.length} modèles`;
+    }
+  }
+  // Patch the existing fetchStatus to also call updateSavoir
+  const origUpdate = updateDashboard;
+  updateDashboard = function(data) {
+    origUpdate(data);
+    updateSavoir(data);
+  };
+
+  // Initial fetch + poll every 15s
+  fetchStatus();
+  setInterval(fetchStatus, 15000);
 
 })();
+
 </script>
 </body>
 </html>
