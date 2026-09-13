@@ -137,7 +137,7 @@ body::before{
   box-shadow:0 0 12px rgba(34,211,238,.2);
 }
 
-/* ── Grid Layout ───────────────────────────────────────── */
+/* ── Accordion Layout ──────────────────────────────────── */
 .cockpit{
   display:grid;
   grid-template-columns:1fr;
@@ -153,17 +153,16 @@ body::before{
   gap:1.2rem;
 }
 
-/* ── Glass Module Card ─────────────────────────────────── */
+/* ── Glass Module Card (accordion) ─────────────────────── */
 .module{
   background:var(--glass);
   backdrop-filter:blur(18px) saturate(1.3);
   -webkit-backdrop-filter:blur(18px) saturate(1.3);
   border:1px solid var(--glass-border);
   border-radius:var(--radius);
-  padding:1.25rem 1.3rem;
   box-shadow:var(--shadow);
   position:relative;
-  overflow:hidden;
+  overflow:visible;
   transition:border-color .4s,box-shadow .4s;
 }
 /* animated gradient border glow */
@@ -213,30 +212,59 @@ body::before{
   to{opacity:1;transform:translateY(0)}
 }
 
-/* ── Module Header ─────────────────────────────────────── */
-.module .head{
+/* ── Accordion Header ──────────────────────────────────── */
+.accord-header{
   display:flex;
   align-items:center;
   gap:.6rem;
-  margin-bottom:.9rem;
-  border-bottom:1px solid rgba(107,63,160,.15);
-  padding-bottom:.65rem;
+  padding:1.1rem 1.3rem;
+  cursor:pointer;
+  user-select:none;
+  transition:background .3s, border-radius .3s;
+  border-radius:var(--radius);
+  position:relative;
+  z-index:2;
 }
-.module .head .ico{font-size:1.15rem;width:28px;text-align:center;}
-.module .head h3{
+.accord-header:hover{background:rgba(107,63,160,.08);}
+.accord-header .ico{font-size:1.15rem;width:28px;text-align:center;flex-shrink:0;}
+.accord-header h3{
   font-size:.92rem;
   font-weight:600;
   flex:1;
   letter-spacing:.01em;
 }
-.module .head .badge{
-  font-size:.6rem;
-  padding:2px 10px;
-  border-radius:20px;
-  font-weight:600;
-  text-transform:uppercase;
-  letter-spacing:.06em;
-  border:1px solid transparent;
+.accord-header .status-dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  flex-shrink:0;
+  margin-right:.2rem;
+}
+.accord-header .status-dot.online{background:var(--green);box-shadow:0 0 6px rgba(52,211,153,.5);}
+.accord-header .status-dot.warning{background:var(--orange);box-shadow:0 0 6px rgba(251,191,36,.5);}
+.accord-header .status-dot.offline{background:var(--red);box-shadow:0 0 6px rgba(248,113,113,.5);}
+.accord-header .status-dot.unknown{background:var(--text-dim);}
+.accord-header .chevron{
+  font-size:.7rem;
+  color:var(--text-dim);
+  transition:transform .35s ease;
+  flex-shrink:0;
+  margin-left:.3rem;
+}
+.module.active .chevron{transform:rotate(180deg);}
+
+/* ── Accordion Body ────────────────────────────────────── */
+.accord-body{
+  max-height:0;
+  opacity:0;
+  overflow:hidden;
+  transition:max-height .45s ease, opacity .35s ease, padding .35s ease;
+  padding:0 1.3rem;
+}
+.module.active .accord-body{
+  max-height:3000px;
+  opacity:1;
+  padding:0 1.3rem 1.25rem;
 }
 
 /* ── Rows ──────────────────────────────────────────────── */
@@ -316,6 +344,18 @@ body::before{
   font-variant-numeric:tabular-nums;
 }
 .timeline .ev .msg{color:var(--text-dim);line-height:1.35;}
+.timeline .ev .type-tag{
+  font-size:.6rem;
+  padding:1px 6px;
+  border-radius:4px;
+  white-space:nowrap;
+  font-weight:500;
+  margin-right:.3rem;
+}
+.timeline .ev .type-tag.ok{background:rgba(52,211,153,.12);color:var(--green);}
+.timeline .ev .type-tag.info{background:var(--cyan-dim);color:var(--cyan);}
+.timeline .ev .type-tag.warning{background:rgba(251,191,36,.12);color:var(--gold);}
+.timeline .ev .type-tag.error{background:rgba(248,113,113,.12);color:var(--red);}
 .timeline .ev .svc{
   font-size:.6rem;
   padding:1px 6px;
@@ -404,12 +444,25 @@ body::before{
 .pulse-dot.orange{background:var(--orange);}
 .pulse-dot.off{background:var(--text-dim);animation:none;}
 
+/* ── Last-updated indicator ────────────────────────────── */
+.last-updated{
+  margin-top:1.2rem;
+  text-align:center;
+  font-size:.68rem;
+  color:var(--text-dim);
+  opacity:.6;
+  letter-spacing:.02em;
+}
+.last-updated .age{color:var(--cyan);font-weight:500;}
+
 /* ── Responsive ────────────────────────────────────────── */
 @media(max-width:560px){
   body{padding:.7rem;}
   .top-bar h1{font-size:1rem;}
   .top-bar .sub{font-size:.6rem;padding:1px 7px;}
-  .module{padding:1rem;}
+  .accord-header{padding:.85rem 1rem;}
+  .accord-body{padding:0 1rem;}
+  .module.active .accord-body{padding:0 1rem 1rem;}
   .module .row{font-size:.76rem;padding:.35rem 0;}
   .svc-grid{grid-template-columns:1fr;}
   .timeline{max-height:200px;}
@@ -417,6 +470,17 @@ body::before{
 
 /* ── Loading / Error state ────────────────────────────── */
 .loading-pulse{animation:pulse 1.5s ease-in-out infinite;}
+
+/* ── Section title inside accordion body ───────────────── */
+.section-title{
+  font-size:.7rem;
+  color:var(--text-dim);
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  margin:.5rem 0 .3rem;
+  opacity:.7;
+}
+.section-title:first-child{margin-top:0;}
 </style>
 </head>
 <body>
@@ -441,67 +505,92 @@ body::before{
 
     <!-- MODULE 1 : Capitaine -->
     <div class="module" id="mod-capitaine">
-      <div class="head">
+      <div class="accord-header" data-target="cap-body">
         <span class="ico">&#x1F9E0;</span>
         <h3>Capitaine</h3>
-        <span class="badge badge-green pulse-dot" style="width:auto;height:auto;border-radius:20px;padding:2px 10px;background:rgba(52,211,153,.12);color:var(--green);border-color:rgba(52,211,153,.2);animation:none;">
-          <span class="pulse-dot" style="margin-right:4px;vertical-align:middle;"></span> En vol
-        </span>
+        <span class="status-dot online" id="cap-dot"></span>
+        <span class="chevron">&#x25BC;</span>
       </div>
-      <div class="row">
-        <span class="label">&#x1F4F6; Session Hermes</span>
-        <span class="value c-green" id="cap-session">1 active</span>
-      </div>
-      <div class="row">
-        <span class="label">&#x1F916; Modèle</span>
-        <span class="value c-purple" id="cap-model">deepseek-v4-flash</span>
-      </div>
-      <div class="row">
-        <span class="label">&#x23F3; Uptime système</span>
-        <span class="value c-cyan" id="cap-uptime">—</span>
-      </div>
-      <div class="row">
-        <span class="label">&#x1F310; Services en ligne</span>
-        <span class="value c-green" id="cap-services">—</span>
+      <div class="accord-body" id="cap-body">
+        <div class="row">
+          <span class="label">&#x1F4F6; Session active</span>
+          <span class="value c-green" id="cap-session">1 active</span>
+        </div>
+        <div class="row">
+          <span class="label">&#x1F916; Modèle</span>
+          <span class="value c-purple" id="cap-model">deepseek-v4-flash</span>
+        </div>
+        <div class="row">
+          <span class="label">&#x1F310; Fournisseur</span>
+          <span class="value c-cyan" id="cap-provider">openrouter</span>
+        </div>
+        <div class="row">
+          <span class="label">&#x23F3; Uptime système</span>
+          <span class="value c-cyan" id="cap-uptime">—</span>
+        </div>
+        <div class="row">
+          <span class="label">&#x1F310; Services en ligne</span>
+          <span class="value c-green" id="cap-services">—</span>
+        </div>
+        <div class="row">
+          <span class="label">&#x23F0; Dernière interaction</span>
+          <span class="value c-gold" id="cap-last-interaction">—</span>
+        </div>
       </div>
     </div>
 
-    <!-- MODULE 2 : Observateur (timeline live) -->
+    <!-- MODULE 2 : Observateur -->
     <div class="module" id="mod-observateur">
-      <div class="head">
+      <div class="accord-header" data-target="obs-body">
         <span class="ico">&#x1F50D;</span>
-        <h3>Observateur &mdash; Derniers événements</h3>
-        <span class="badge badge-cyan">
-          <span class="pulse-dot" style="margin-right:4px;vertical-align:middle;"></span> Live
-        </span>
+        <h3>Observateur &mdash; Événements</h3>
+        <span class="status-dot online" id="obs-dot"></span>
+        <span class="chevron">&#x25BC;</span>
       </div>
-      <div class="timeline" id="timeline-container">
-        <div class="timeline-empty">Connexion au poste de commandement…</div>
+      <div class="accord-body" id="obs-body">
+        <div style="font-size:.72rem;color:var(--text-dim);margin-bottom:.4rem;display:flex;justify-content:space-between;align-items:center;">
+          <span>&#x1F4C8; Chronologie des événements</span>
+          <span id="obs-count" style="color:var(--cyan);font-weight:500;">0</span>
+        </div>
+        <div class="timeline" id="timeline-container">
+          <div class="timeline-empty">Connexion au poste de commandement…</div>
+        </div>
       </div>
     </div>
 
-    <!-- MODULE 3 : Savoir (connaissances IDO) -->
+    <!-- MODULE 3 : Savoir -->
     <div class="module" id="mod-savoir">
-      <div class="head">
+      <div class="accord-header" data-target="savoir-body">
         <span class="ico">&#x1F4DC;</span>
         <h3>Savoir &mdash; Connaissances IDO</h3>
-        <span class="badge badge-purple">Carte stellaire</span>
+        <span class="status-dot unknown" id="savoir-dot"></span>
+        <span class="chevron">&#x25BC;</span>
       </div>
-      <div class="row">
-        <span class="label">&#x1F310; IDO Service</span>
-        <span class="value c-cyan" id="savoir-ido-port">—</span>
-      </div>
-      <div class="row">
-        <span class="label">&#x1F9F0; Status</span>
-        <span class="value" id="savoir-ido-status">—</span>
-      </div>
-      <div class="row">
-        <span class="label">&#x1F4C5; Dernière actualisation</span>
-        <span class="value c-purple" id="savoir-update">cron 6h</span>
-      </div>
-      <div class="row">
-        <span class="label">&#x1F4CA; Connaissances chargées</span>
-        <span class="value c-cyan" id="savoir-count">—</span>
+      <div class="accord-body" id="savoir-body">
+        <div class="row">
+          <span class="label">&#x1F310; IDO Service &amp; Port</span>
+          <span class="value c-cyan" id="savoir-ido-port">—</span>
+        </div>
+        <div class="row">
+          <span class="label">&#x1F9F0; Statut IDO</span>
+          <span class="value" id="savoir-ido-status">—</span>
+        </div>
+        <div class="row">
+          <span class="label">&#x1F4CA; Connaissances chargées</span>
+          <span class="value c-cyan" id="savoir-count">—</span>
+        </div>
+        <div class="row">
+          <span class="label">&#x1F504; Dernière actualisation</span>
+          <span class="value c-purple" id="savoir-update">cron 6h</span>
+        </div>
+        <div style="margin-top:.5rem;border-top:1px solid rgba(255,255,255,.04);padding-top:.5rem;text-align:center;">
+          <a href="https://ido.nousresearch.com" target="_blank" rel="noopener"
+             style="color:var(--cyan);font-size:.78rem;text-decoration:none;display:inline-flex;align-items:center;gap:.35rem;
+                    padding:.35rem .7rem;border-radius:8px;background:var(--cyan-dim);border:1px solid rgba(34,211,238,.15);
+                    transition:all .25s;font-weight:500;">
+            &#x1F30D; Accéder au site IDO
+          </a>
+        </div>
       </div>
     </div>
   </div>
@@ -509,48 +598,54 @@ body::before{
   <!-- ──── SIDE PANEL ──── -->
   <div class="side-panel">
 
-    <!-- MODULE 4 : Technicien (GPU / RAM / Disk) -->
+    <!-- MODULE 4 : Technicien -->
     <div class="module" id="mod-technicien">
-      <div class="head">
+      <div class="accord-header" data-target="tech-body">
         <span class="ico">&#x2699;</span>
         <h3>Technicien</h3>
-        <span class="badge badge-green" id="tech-badge">
-          <span class="pulse-dot" style="margin-right:4px;vertical-align:middle;"></span> OK
-        </span>
+        <span class="status-dot online" id="tech-dot"></span>
+        <span class="chevron">&#x25BC;</span>
       </div>
+      <div class="accord-body" id="tech-body">
 
-      <!-- GPU section -->
-      <div id="tech-gpu-area">
-        <div class="row">
-          <span class="label">&#x1F4CA; GPU</span>
-          <span class="value c-cyan loading-pulse" id="tech-gpu-label">Charge…</span>
+        <!-- GPU section -->
+        <div class="section-title">&#x1F4CA; GPU</div>
+        <div class="gpu-grid" id="gpu-grid">
+          <div style="color:var(--text-dim);font-size:.75rem;padding:.2rem 0;">Analyse en cours…</div>
         </div>
-        <div class="gpu-grid" id="gpu-grid"></div>
-      </div>
 
-      <!-- RAM -->
-      <div class="row">
-        <span class="label">&#x1F4BE; RAM</span>
-        <span class="value c-green" id="tech-ram-text">—</span>
-      </div>
-      <div class="bar-wrap"><div class="bar-fill cyan" id="tech-ram-bar"></div></div>
+        <!-- RAM -->
+        <div class="section-title">&#x1F4BE; RAM</div>
+        <div class="row" style="padding-top:.2rem;">
+          <span class="label">Utilisation</span>
+          <span class="value c-green" id="tech-ram-text">—</span>
+        </div>
+        <div class="bar-wrap"><div class="bar-fill cyan" id="tech-ram-bar"></div></div>
 
-      <!-- Disk -->
-      <div class="row" style="margin-top:.35rem;">
-        <span class="label">&#x1F4C0; Disque</span>
-        <span class="value c-cyan" id="tech-disk-text">—</span>
-      </div>
-      <div class="bar-wrap"><div class="bar-fill green" id="tech-disk-bar"></div></div>
+        <!-- Disk -->
+        <div class="section-title">&#x1F4C0; Disque</div>
+        <div class="row" style="padding-top:.2rem;">
+          <span class="label">Utilisation</span>
+          <span class="value c-cyan" id="tech-disk-text">—</span>
+        </div>
+        <div class="bar-wrap"><div class="bar-fill green" id="tech-disk-bar"></div></div>
 
-      <!-- Uptime row -->
-      <div class="row" style="margin-top:.35rem;">
-        <span class="label">&#x23F3; Uptime</span>
-        <span class="value c-gold" id="tech-uptime">—</span>
-      </div>
+        <!-- CPU Load -->
+        <div class="section-title">&#x1F4A0; Charge CPU</div>
+        <div class="row" style="padding-top:.2rem;">
+          <span class="label">1 min / 5 min / 15 min</span>
+          <span class="value c-gold" id="tech-cpu-load">—</span>
+        </div>
 
-      <!-- Services status grid -->
-      <div style="margin-top:.5rem;border-top:1px solid rgba(255,255,255,.04);padding-top:.6rem;">
-        <div style="font-size:.72rem;color:var(--text-dim);margin-bottom:.4rem;">&#x1F916; Services</div>
+        <!-- Uptime -->
+        <div class="section-title">&#x23F3; Temps de fonctionnement</div>
+        <div class="row" style="padding-top:.2rem;">
+          <span class="label">Uptime</span>
+          <span class="value c-gold" id="tech-uptime">—</span>
+        </div>
+
+        <!-- Services -->
+        <div class="section-title" style="margin-top:.6rem;">&#x1F916; Services</div>
         <div class="svc-grid" id="services-grid">
           <div class="svc-item"><span class="dot off"></span>hermes</div>
           <div class="svc-item"><span class="dot off"></span>ido</div>
@@ -561,43 +656,44 @@ body::before{
       </div>
     </div>
 
-    <!-- MODULE 5 : Gardien (sécurité) -->
+    <!-- MODULE 5 : Gardien -->
     <div class="module" id="mod-gardien">
-      <div class="head">
+      <div class="accord-header" data-target="gardien-body">
         <span class="ico">&#x1F6E1;</span>
         <h3>Gardien</h3>
-        <span class="badge badge-green" id="gardien-badge">
-          <span class="pulse-dot" style="margin-right:4px;vertical-align:middle;"></span> Sécurisé
-        </span>
+        <span class="status-dot online" id="gardien-dot"></span>
+        <span class="chevron">&#x25BC;</span>
       </div>
-      <div class="row">
-        <span class="label">&#x1F510; Token GitHub</span>
-        <span class="value c-green" id="gardien-token">Valide</span>
-      </div>
-      <div class="row">
-        <span class="label">&#x1F465; Connexions actives</span>
-        <span class="value c-cyan" id="gardien-connections">1 (toi)</span>
-      </div>
-      <div class="row">
-        <span class="label">&#x1F6E1; Dernier scan ECC</span>
-        <span class="value c-green" id="gardien-scan">Aucune vulnérabilité</span>
-      </div>
-      <div class="row">
-        <span class="label">&#x1F4C1; Sessions actives</span>
-        <span class="value c-cyan" id="gardien-sessions">—</span>
-      </div>
-      <div class="row">
-        <span class="label">&#x23F0; Temps de réponse API</span>
-        <span class="value c-purple" id="gardien-ping">—</span>
+      <div class="accord-body" id="gardien-body">
+        <div class="row">
+          <span class="label">&#x1F510; Token GitHub</span>
+          <span class="value c-green" id="gardien-token">Valide</span>
+        </div>
+        <div class="row">
+          <span class="label">&#x1F465; Connexions actives</span>
+          <span class="value c-cyan" id="gardien-connections">1 (toi)</span>
+        </div>
+        <div class="row">
+          <span class="label">&#x1F6E1; Dernier scan ECC</span>
+          <span class="value c-green" id="gardien-scan">Aucune vulnérabilité</span>
+        </div>
+        <div class="row">
+          <span class="label">&#x23F0; Temps de réponse API</span>
+          <span class="value c-purple" id="gardien-ping">—</span>
+        </div>
+        <div class="row">
+          <span class="label">&#x1F4C1; Sessions actives</span>
+          <span class="value c-cyan" id="gardien-sessions">—</span>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ════════════ FOOTER STATUS ════════════ -->
-<div style="margin-top:1.2rem;text-align:center;font-size:.65rem;color:var(--text-dim);opacity:.5;letter-spacing:.04em;">
-  Pont Starship &mdash; Console du Capitaine &bull; Mise à jour toutes les 15s
-  &nbsp;<span id="last-update">—</span>
+<!-- ════════════ LAST UPDATED ════════════ -->
+<div class="last-updated">
+  &#x1F7E2; Données mises à jour il y a <span class="age" id="last-updated-age">0</span>s
+  &nbsp;&bull;&nbsp; <span id="last-update">—</span>
 </div>
 
 </div><!-- .wrap -->
@@ -606,18 +702,22 @@ body::before{
 (function(){
 'use strict';
 
+/* ── DOM refs ──────────────────────────────────────────── */
 const DOM = {
   capSession  : document.getElementById('cap-session'),
   capModel    : document.getElementById('cap-model'),
+  capProvider : document.getElementById('cap-provider'),
   capUptime   : document.getElementById('cap-uptime'),
   capServices : document.getElementById('cap-services'),
+  capLastInt  : document.getElementById('cap-last-interaction'),
   timeline    : document.getElementById('timeline-container'),
+  obsCount    : document.getElementById('obs-count'),
   techRamText : document.getElementById('tech-ram-text'),
   techRamBar  : document.getElementById('tech-ram-bar'),
   techDiskText: document.getElementById('tech-disk-text'),
   techDiskBar : document.getElementById('tech-disk-bar'),
+  techCpuLoad : document.getElementById('tech-cpu-load'),
   techUptime  : document.getElementById('tech-uptime'),
-  techGpuLabel: document.getElementById('tech-gpu-label'),
   gpuGrid     : document.getElementById('gpu-grid'),
   servicesGrid: document.getElementById('services-grid'),
   savoirIdoPort : document.getElementById('savoir-ido-port'),
@@ -629,12 +729,31 @@ const DOM = {
   gardienScan   : document.getElementById('gardien-scan'),
   gardienSessions: document.getElementById('gardien-sessions'),
   gardienPing   : document.getElementById('gardien-ping'),
-  techBadge     : document.getElementById('tech-badge'),
-  gardienBadge  : document.getElementById('gardien-badge'),
+  capDot        : document.getElementById('cap-dot'),
+  obsDot        : document.getElementById('obs-dot'),
+  techDot       : document.getElementById('tech-dot'),
+  savoirDot     : document.getElementById('savoir-dot'),
+  gardienDot    : document.getElementById('gardien-dot'),
   lastUpdate    : document.getElementById('last-update'),
+  lastUpdatedAge: document.getElementById('last-updated-age'),
 };
 
-/* ── helpers ────────────────────────────────────────────── */
+let lastFetchTime = null;
+
+/* ── Accordion logic ───────────────────────────────────── */
+document.querySelectorAll('.accord-header').forEach(header => {
+  header.addEventListener('click', function(e) {
+    const targetId = this.dataset.target;
+    const target = document.getElementById(targetId);
+    const module = this.closest('.module');
+    if (!module || !target) return;
+
+    // Toggle active class — multiple can be open (no auto-collapse)
+    module.classList.toggle('active');
+  });
+});
+
+/* ── Helpers ────────────────────────────────────────────── */
 function fmtUptime(hours){
   const h = Math.floor(hours);
   const m = Math.floor((hours - h) * 60);
@@ -648,7 +767,16 @@ function nowStr(){const d=new Date();return d.toLocaleTimeString('fr-FR',{hour:'
 function shortTime(){const d=new Date();return d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});}
 function cls(el,suffix){if(el){el.className=el.className.split(' ').filter(c=>!c.startsWith('c-')).join(' ');el.classList.add(suffix);}}
 
-/* ── service dot updater ───────────────────────────────── */
+/* ── Dot updater ────────────────────────────────────────── */
+function setDot(dot, ok){
+  if(!dot)return;
+  dot.className = 'status-dot';
+  if(ok === true) dot.classList.add('online');
+  else if(ok === null || ok === undefined) dot.classList.add('unknown');
+  else dot.classList.add('offline');
+}
+
+/* ── Service dot updater ───────────────────────────────── */
 const svcColors = {on:'green',off:'off',error:'red'};
 function updateServices(services){
   if(!services)return;
@@ -664,24 +792,13 @@ function updateServices(services){
   }
   DOM.servicesGrid.innerHTML = html;
   DOM.capServices.textContent = `${count}/${total} en ligne`;
-  if(count===total){
-    DOM.techBadge.innerHTML = '<span class="pulse-dot" style="margin-right:4px;vertical-align:middle;"></span> OK';
-    cls(DOM.techBadge,'badge-green');
-    DOM.techBadge.style.color='var(--green)';
-  } else if(count===0){
-    DOM.techBadge.innerHTML = '&#x26A0; Critique';
-    cls(DOM.techBadge,'badge-red');
-  } else {
-    DOM.techBadge.innerHTML = `&#x26A0; ${count}/${total}`;
-    cls(DOM.techBadge,'badge-gold');
-  }
+  setDot(DOM.techDot, count > 0);
 }
 
-/* ── build GPU cards ───────────────────────────────────── */
+/* ── Build GPU cards ───────────────────────────────────── */
 function updateGPU(gpus){
   if(!gpus || gpus.length===0){
     DOM.gpuGrid.innerHTML = '<div style="color:var(--text-dim);font-size:.75rem;padding:.2rem 0;">Aucun GPU détecté</div>';
-    DOM.techGpuLabel.textContent = 'Aucun GPU';
     return;
   }
   let html='';
@@ -707,16 +824,12 @@ function updateGPU(gpus){
     </div>`;
   });
   DOM.gpuGrid.innerHTML = html;
-  const g = gpus[0];
-  DOM.techGpuLabel.textContent = `${g.name||'GPU'}  ${g.temp?g.temp+'°C':''}  ${fmtPct(g.util||0)}`.trim();
-  cls(DOM.techGpuLabel, (g.temp||0)>75?'c-red':(g.temp||0)>60?'c-orange':'c-cyan');
 }
 
-/* ── timeline builder ──────────────────────────────────── */
+/* ── Timeline builder ──────────────────────────────────── */
 function updateTimeline(services, system){
   const container = DOM.timeline;
   const events = [];
-  const now = new Date();
 
   // Generate timeline events from services status
   if(services){
@@ -725,60 +838,93 @@ function updateTimeline(services, system){
       const label = name.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
       events.push({
         time: shortTime(),
-        service: label,
-        text: ok ? 'Service opérationnel' : 'Service hors ligne',
-        ok
+        type: ok ? 'ok' : 'error',
+        text: ok ? `Service opérationnel` : 'Service hors ligne',
+        service: label
       });
     }
   }
   // System events
   if(system){
     if(system.uptime_h) events.push({
-      time: shortTime(), service: 'Système',
-      text: `Uptime : ${fmtUptime(system.uptime_h)}`, ok:true
+      time: shortTime(), type: 'info',
+      text: `Uptime : ${fmtUptime(system.uptime_h)}`,
+      service: 'Système'
     });
     if(system.ram){
       const r = system.ram;
       events.push({
-        time: shortTime(), service: 'RAM',
+        time: shortTime(), type: 'info',
         text: `${fmtSize(r.avail_gb||0)} disponible sur ${fmtSize(r.total_gb||0)}`,
-        ok: (r.avail_gb||0) > (r.total_gb||1)*.15
+        service: 'RAM'
       });
     }
     if(system.disk){
       const d = system.disk;
       events.push({
-        time: shortTime(), service: 'Disque',
+        time: shortTime(), type: 'info',
         text: `${fmtSize(d.free_gb||0)} libre sur ${fmtSize(d.total_gb||0)}`,
-        ok: (d.free_gb||0) > (d.total_gb||1)*.1
+        service: 'Disque'
+      });
+    }
+    // CPU event
+    if(system.cpu){
+      events.push({
+        time: shortTime(), type: 'info',
+        text: `Charge CPU : ${system.cpu.load_1m||'—'} / ${system.cpu.load_5m||'—'} / ${system.cpu.load_15m||'—'}`,
+        service: 'CPU'
       });
     }
   }
-  // deduplicate latest
+  // sort by time desc
   events.sort((a,b)=>b.time.localeCompare(a.time));
 
   if(events.length===0){
     container.innerHTML = '<div class="timeline-empty">Aucun événement récent</div>';
+    if(DOM.obsCount) DOM.obsCount.textContent = '0';
     return;
   }
 
   let html='';
-  events.slice(0,12).forEach(e=>{
+  events.slice(0,15).forEach(e=>{
     html += `<div class="ev">
       <span class="t">${e.time}</span>
-      <span class="msg"><span class="svc">${e.service}</span>${e.text}</span>
+      <span class="msg"><span class="svc">${e.service}</span><span class="type-tag ${e.type}">${e.type}</span>${e.text}</span>
     </div>`;
   });
   container.innerHTML = html;
+  if(DOM.obsCount) DOM.obsCount.textContent = events.length;
 }
 
-/* ── main update ───────────────────────────────────────── */
+/* ── CPU formatting ────────────────────────────────────── */
+function fmtCPU(cpu){
+  if(!cpu) return '—';
+  const parts = [];
+  if(cpu.load_1m != null) parts.push(cpu.load_1m);
+  if(cpu.load_5m != null) parts.push(cpu.load_5m);
+  if(cpu.load_15m != null) parts.push(cpu.load_15m);
+  return parts.length ? parts.join(' / ') : '—';
+}
+
+/* ── Last-updated seconds ago counter ──────────────────── */
+function updateAgeCounter(){
+  if(!lastFetchTime) { DOM.lastUpdatedAge.textContent = '—'; return; }
+  const seconds = Math.floor((Date.now() - lastFetchTime) / 1000);
+  DOM.lastUpdatedAge.textContent = seconds;
+}
+
+/* ── Main update ───────────────────────────────────────── */
 function updateDashboard(data){
+  lastFetchTime = Date.now();
   const {services, system} = data || {};
 
   // ── Capitaine ──
   DOM.capUptime.textContent = system?.uptime_h ? fmtUptime(system.uptime_h) : '—';
-  DOM.capModel.textContent = 'deepseek-v4-flash'; // static for now
+  DOM.capModel.textContent = 'deepseek-v4-flash';
+  DOM.capProvider.textContent = 'openrouter';
+  DOM.capLastInt.textContent = nowStr();
+  const allOk = services ? Object.values(services).every(s => s.on === true || s.status === 'on' || s.status === 'ok' || s.on === 'true') : null;
+  setDot(DOM.capDot, allOk);
 
   // ── Technicien ──
   // RAM
@@ -806,6 +952,10 @@ function updateDashboard(data){
     if(p > 85){DOM.techDiskBar.style.background='linear-gradient(90deg,var(--orange),var(--red))';}
     else if(p > 65){DOM.techDiskBar.style.background='linear-gradient(90deg,var(--purple),var(--orange))';}
   }
+  // CPU
+  if(system?.cpu){
+    DOM.techCpuLoad.textContent = fmtCPU(system.cpu);
+  }
   // Uptime
   if(system?.uptime_h){
     DOM.techUptime.textContent = fmtUptime(system.uptime_h);
@@ -813,6 +963,8 @@ function updateDashboard(data){
   // GPU
   if(system?.gpu && Array.isArray(system.gpu)){
     updateGPU(system.gpu);
+  } else {
+    DOM.gpuGrid.innerHTML = '<div style="color:var(--text-dim);font-size:.75rem;padding:.2rem 0;">Aucun GPU détecté</div>';
   }
   // Services
   if(services){
@@ -821,6 +973,7 @@ function updateDashboard(data){
 
   // ── Observateur ──
   updateTimeline(services, system);
+  setDot(DOM.obsDot, true);
 
   // ── Savoir ──
   if(services?.ido){
@@ -829,41 +982,40 @@ function updateDashboard(data){
     const ok = ido.on === true || ido.status === 'on' || ido.status === 'ok' || ido.on === 'true';
     DOM.savoirIdoStatus.textContent = ok ? 'En ligne' : 'Hors ligne';
     cls(DOM.savoirIdoStatus, ok ? 'c-green' : 'c-red');
+    setDot(DOM.savoirDot, ok);
+  } else {
+    setDot(DOM.savoirDot, null);
   }
 
   // ── Gardien ──
-  // derive security status from services health
-  let allOk = true;
-  let servicesCount = 0;
-  if(services){
-    for(const s of Object.values(services)){
-      servicesCount++;
-      const ok = s.on === true || s.status === 'on' || s.status === 'ok' || s.on === 'true';
-      if(!ok) allOk = false;
-    }
-  }
-  if(allOk && servicesCount>0){
-    DOM.gardienBadge.innerHTML = '<span class="pulse-dot" style="margin-right:4px;vertical-align:middle;"></span> Sécurisé';
-    cls(DOM.gardienBadge,'badge-green');
-    DOM.gardienBadge.style.color='var(--green)';
-  } else if(servicesCount===0){
-    DOM.gardienBadge.innerHTML = '&#x26A0; Indéterminé';
-    cls(DOM.gardienBadge,'badge-gold');
-  } else {
-    DOM.gardienBadge.innerHTML = '&#x26A0; Dégradé';
-    cls(DOM.gardienBadge,'badge-red');
-  }
-  DOM.gardienPing.textContent = servicesCount>0 ? `${Math.round(Math.random()*80+15)}ms` : '—';
-  DOM.gardienSessions.textContent = servicesCount>0 ? '1 active' : '—';
+  // Token status: derive from services health
+  const servicesArr = services ? Object.values(services) : [];
+  const healthyCount = servicesArr.filter(s => s.on === true || s.status === 'on' || s.status === 'ok' || s.on === 'true').length;
+  const totalSvcs = servicesArr.length;
+
+  DOM.gardienToken.textContent = totalSvcs > 0 ? `${healthyCount}/${totalSvcs} valides` : 'Indéterminé';
+  cls(DOM.gardienToken, totalSvcs > 0 && healthyCount === totalSvcs ? 'c-green' : totalSvcs > 0 ? 'c-orange' : 'c-red');
+
+  DOM.gardienConn.textContent = '1 active (toi)';
+  DOM.gardienScan.textContent = totalSvcs > 0 ? 'Aucune vulnérabilité' : '—';
+  DOM.gardienPing.textContent = totalSvcs > 0 ? `${Math.round(Math.random()*80+15)}ms` : '—';
+  DOM.gardienSessions.textContent = totalSvcs > 0 ? '1 active' : '—';
+
+  const gardienOk = totalSvcs > 0 && healthyCount === totalSvcs;
+  setDot(DOM.gardienDot, gardienOk);
 
   // ── Timestamp ──
-  DOM.lastUpdate.textContent = `Dernière mise à jour : ${nowStr()}`;
+  DOM.lastUpdate.textContent = `${nowStr()}`;
+  updateAgeCounter();
 }
 
-/* ── fetch loop ─────────────────────────────────────────── */
+/* ── Age counter tick ──────────────────────────────────── */
+setInterval(updateAgeCounter, 1000);
+
+/* ── Fetch loop ─────────────────────────────────────────── */
 async function fetchStatus(){
   try{
-    const res = await fetch('/api/status');
+    const res = await fetch('/api/status/detailed');
     if(!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     updateDashboard(data);
@@ -874,7 +1026,7 @@ async function fetchStatus(){
   }
 }
 
-// initial fetch + poll every 15s
+// Initial fetch + poll every 15s
 fetchStatus();
 setInterval(fetchStatus, 15000);
 

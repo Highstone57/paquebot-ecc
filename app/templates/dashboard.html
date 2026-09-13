@@ -22,9 +22,11 @@
     --accent-a: #f97316;
     --accent-b: #3b82f6;
     --accent-c: #a855f7;
+    --accent-d: #22d3ee;
     --glow-a: rgba(249,115,22,0.15);
     --glow-b: rgba(59,130,246,0.15);
     --glow-c: rgba(168,85,247,0.15);
+    --glow-d: rgba(34,211,238,0.15);
     --green: #22c55e;
     --red: #ef4444;
     --yellow: #eab308;
@@ -75,6 +77,13 @@
     top: 40%; left: 50%;
     animation-duration: 25s;
     animation-delay: -10s;
+  }
+  .particle-field .orb:nth-child(4) {
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, var(--glow-d), transparent 70%);
+    bottom: 10%; right: 30%;
+    animation-duration: 20s;
+    animation-delay: -7s;
   }
 
   @keyframes orbFloat {
@@ -247,7 +256,7 @@
   /* ── Cards grid ── */
   .cards-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
     gap: 1.25rem;
   }
   @media (max-width: 768px) {
@@ -255,7 +264,6 @@
   }
   @media (min-width: 769px) and (max-width: 1024px) {
     .cards-grid { grid-template-columns: repeat(2, 1fr); }
-    .cards-grid .card:last-child { grid-column: 1 / -1; max-width: 50%; justify-self: center; }
   }
 
   /* ── Card ── */
@@ -278,6 +286,7 @@
   .card:nth-child(1) { animation: cardEntry 0.5s ease 0.35s both; }
   .card:nth-child(2) { animation: cardEntry 0.5s ease 0.50s both; }
   .card:nth-child(3) { animation: cardEntry 0.5s ease 0.65s both; }
+  .card:nth-child(4) { animation: cardEntry 0.5s ease 0.80s both; }
 
   @keyframes cardEntry {
     to { opacity: 1; transform: translateY(0); }
@@ -321,6 +330,13 @@
   }
   .card-c:hover { border-color: rgba(168,85,247,0.3); }
 
+  /* variant D — cyan */
+  .card-d { --card-accent: var(--accent-d); --card-glow: var(--glow-d); }
+  .card-d::before {
+    background: radial-gradient(600px circle at 50% 0%, rgba(34,211,238,0.08), transparent 60%);
+  }
+  .card-d:hover { border-color: rgba(34,211,238,0.3); }
+
   .card-icon-wrap {
     width: 48px; height: 48px;
     border-radius: var(--radius-sm);
@@ -343,6 +359,10 @@
   .card-c .card-icon-wrap {
     background: linear-gradient(135deg, rgba(168,85,247,0.2), rgba(168,85,247,0.05));
     border: 1px solid rgba(168,85,247,0.15);
+  }
+  .card-d .card-icon-wrap {
+    background: linear-gradient(135deg, rgba(34,211,238,0.2), rgba(34,211,238,0.05));
+    border: 1px solid rgba(34,211,238,0.15);
   }
 
   .card h2 {
@@ -434,10 +454,11 @@
 
 <!-- Ambient particle glow orbs -->
 <div class="particle-field">
-  <div class="orb"></div>
-  <div class="orb"></div>
-  <div class="orb"></div>
-</div>
+    <div class="orb"></div>
+    <div class="orb"></div>
+    <div class="orb"></div>
+    <div class="orb"></div>
+  </div>
 
 <div class="app">
 
@@ -495,6 +516,14 @@
       <h2>La Console du Capitaine</h2>
       <p>Un cockpit avec 5 agents : Capitaine, Observateur, Technicien, Gardien, Savoir. La vue d'ensemble de ton système.</p>
       <span class="card-tag">Cockpit</span>
+    </div>
+
+    <!-- Card D — Ingénieur -->
+    <div class="card card-d" onclick="location='/dashboard/a'">
+      <div class="card-icon-wrap">&#x2699;</div>
+      <h2>Ingénieur</h2>
+      <p>Salle des machines : connecté via le profil Ingénieur du Bateau-Atelier. Sessions Hermes, GitHub, ECC, GPU live.</p>
+      <span class="card-tag">DevOps</span>
     </div>
 
   </div>
