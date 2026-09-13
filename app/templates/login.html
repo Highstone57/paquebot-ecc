@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paquebot-ECC</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0d1117; color: #c9d1d9;
+    font-family: system-ui, -apple-system, sans-serif;
+    min-height: 100vh; display: flex; flex-direction: column;
+  }
+  .container { max-width: 500px; margin: auto; padding: 2rem 1rem; width: 100%; }
+  header { text-align: center; margin-bottom: 2rem; }
+  h1 { font-size: 2rem; }
+  h1 span { background: linear-gradient(135deg, #58a6ff, #bc8cff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .subtitle { color: #8b949e; margin-top: .3rem; font-size: .9rem; }
+  .card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 1.5rem; margin: 1rem 0; }
+  .card h2 { font-size: 1.1rem; margin-bottom: 1rem; }
+  label { display: block; margin: .8rem 0 .3rem; color: #8b949e; font-size: .85rem; }
+  input, select { width: 100%; padding: .7rem; background: #0d1117; border: 1px solid #30363d; border-radius: 8px; color: #f0f6fc; font-size: 1rem; }
+  button { width: 100%; margin-top: 1rem; padding: .7rem; background: #238636; border: none; border-radius: 8px; color: #fff; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  button:hover { background: #2ea043; }
+  .result { margin-top: 1rem; padding: 1rem; border-radius: 8px; font-size: .9rem; display: none; }
+  .success { background: rgba(63,185,80,.1); border: 1px solid #3fb950; }
+  .error { background: rgba(248,81,73,.1); border: 1px solid #f85149; }
+  nav { display: flex; gap: 1rem; justify-content: center; margin-bottom: 1rem; }
+  nav a { color: #58a6ff; text-decoration: none; font-size: .9rem; cursor: pointer; }
+  nav a:hover { text-decoration: underline; }
+  .json { font-family: monospace; font-size: .8rem; white-space: pre-wrap; }
+  .status { text-align: center; color: #484f58; font-size: .75rem; margin-top: 2rem; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>&#x1F6A2; <span>Paquebot-ECC</span></h1>
+    <p class="subtitle">Construit avec le workflow ECC</p>
+  </header>
+  <nav>
+    <a onclick="showTab('login')">&#x1F511; Connexion</a>
+    <a onclick="showTab('register')">&#x1F4CB; Inscription</a>
+  </nav>
+
+  <div id="login-card" class="card">
+    <h2>&#x1F511; Connexion</h2>
+    <label>Nom d'utilisateur</label>
+    <input id="login-user">
+    <label>Mot de passe</label>
+    <input id="login-pass" type="password">
+    <button onclick="login()">Se connecter</button>
+    <div id="login-result" class="result"></div>
+  </div>
+
+  <div id="register-card" class="card" style="display:none;">
+    <h2>&#x1F4CB; Inscription</h2>
+    <label>Nom d'utilisateur</label>
+    <input id="reg-user">
+    <label>Mot de passe</label>
+    <input id="reg-pass" type="password">
+    <label>Niveau de sécurité</label>
+    <select id="reg-level">
+      <option value="public">&#x1F310; Public</option>
+      <option value="shared">&#x1F91D; Partagé</option>
+      <option value="private">&#x1F512; Privé</option>
+    </select>
+    <button onclick="register()">Créer mon compte</button>
+    <div id="reg-result" class="result"></div>
+  </div>
+</div>
+
+<script>
+function showTab(t){ 
+  document.getElementById('login-card').style.display = t==='login'?'block':'none';
+  document.getElementById('register-card').style.display = t==='register'?'block':'none';
+}
+async function api(p,b){ const r=await fetch(p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});return {ok:r.ok,data:await r.json()}; }
+function showResult(el,d){ 
+  el.style.display='block';
+  if(d.success||d.detail===undefined) el.className='result success', el.innerHTML='<strong>&#x2705; OK</strong><br><div class="json">'+JSON.stringify(d,null,2)+'</div>';
+  else el.className='result error', el.innerHTML='<strong>&#x274C; Erreur</strong><br>'+(d.detail||'Inconnue');
+}
+async function login(){
+  const {ok,data}=await api('/auth/login',{username:document.getElementById('login-user').value,password:document.getElementById('login-pass').value});
+  if(ok){ localStorage.setItem('paquebot_user',JSON.stringify(data)); window.location.href='/dashboard'; }
+  else showResult(document.getElementById('login-result'),data);
+}
+async function register(){
+  const {ok,data}=await api('/auth/register',{username:document.getElementById('reg-user').value,password:document.getElementById('reg-pass').value,security_level:document.getElementById('reg-level').value});
+  showResult(document.getElementById('reg-result'),data);
+  if(ok) setTimeout(()=>{ showTab('login'); },1500);
+}
+// Auto-redirect si déjà connecté
+if(localStorage.getItem('paquebot_user')) window.location.href='/dashboard';
+</script>
+</body>
+</html>

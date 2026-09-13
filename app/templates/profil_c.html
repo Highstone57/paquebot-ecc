@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Console du Capitaine — Aperçu</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:#0d1117;color:#c9d1d9;font-family:system-ui,-apple-system,sans-serif;padding:1rem;}
+  .wrap{max-width:1000px;margin:0 auto;}
+  .top{display:flex;align-items:center;gap:1rem;padding:1rem 0;flex-wrap:wrap;}
+  .top h1{font-size:1.4rem;flex:1;}
+  .top a{color:#58a6ff;text-decoration:none;font-size:.85rem;}
+  .top a:hover{text-decoration:underline;}
+  .subtitle{color:#8b949e;font-size:.85rem;margin-bottom:1.5rem;}
+  .cockpit{display:grid;grid-template-columns:1fr;gap:1rem;}
+  @media(min-width:700px){.cockpit{grid-template-columns:2fr 1fr;}}
+  .main-panel{display:flex;flex-direction:column;gap:1rem;}
+  .side-panel{display:flex;flex-direction:column;gap:1rem;}
+  .module{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:1.2rem;}
+  .module .head{display:flex;align-items:center;gap:.5rem;margin-bottom:.8rem;}
+  .module .head .ico{font-size:1.3rem;}
+  .module .head h3{font-size:1rem;flex:1;}
+  .module .head .badge{font-size:.65rem;padding:2px 8px;border-radius:4px;font-weight:600;}
+  .module .row{display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid #21262d;font-size:.85rem;}
+  .module .row:last-child{border-bottom:none;}
+  .c1{color:#f0883e;}
+  .c2{color:#58a6ff;}
+  .c3{color:#3fb950;}
+  .c4{color:#f85149;}
+  .c5{color:#bc8cff;}
+  .bg1{background:rgba(240,136,62,.12);color:#f0883e;}
+  .bg2{background:rgba(88,166,255,.12);color:#58a6ff;}
+  .bg3{background:rgba(63,185,80,.12);color:#3fb950;}
+  .bg4{background:rgba(248,81,73,.12);color:#f85149;}
+  .bg5{background:rgba(188,140,255,.12);color:#bc8cff;}
+  .timeline{font-size:.8rem;color:#8b949e;}
+  .timeline .ev{padding:.3rem 0;border-bottom:1px solid #21262d;}
+  .timeline .ev:last-child{border-bottom:none;}
+  .timeline .ev .t{color:#58a6ff;}
+  .meta{border:1px solid #30363d;border-radius:8px;padding:1rem;margin-top:1.5rem;font-size:.85rem;color:#8b949e;background:rgba(188,140,255,.06);}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="top">
+  <span style="font-size:2rem;">&#x1F9E0;</span>
+  <h1>Console du Capitaine</h1>
+  <a href="/dashboard">&larr; Retour</a>
+</div>
+<p class="subtitle">Cockpit de bord — tout voir, tout contrôler.</p>
+
+<div class="cockpit">
+  <div class="main-panel">
+    <div class="module">
+      <div class="head"><span class="ico">&#x1F9E0;</span><h3>Le Capitaine</h3><span class="badge bg3">Actif</span></div>
+      <div class="row"><span>Session Hermes en cours</span><span class="c3">1</span></div>
+      <div class="row"><span>Dernière interaction</span><span class="c2">il y a 3 min</span></div>
+      <div class="row"><span>Profil actif</span><span class="c1">défaut</span></div>
+      <div class="row"><span>Modèle utilisé</span><span class="c5">deepseek-v4-flash</span></div>
+    </div>
+
+    <div class="module">
+      <div class="head"><span class="ico">&#x1F50D;</span><h3>Observateur — Derniers événements</h3><span class="badge bg2">Live</span></div>
+      <div class="timeline">
+        <div class="ev"><span class="t">13:48</span> — Commit push sur paquebot-ecc</div>
+        <div class="ev"><span class="t">13:42</span> — Test auth : 16/16 passed</div>
+        <div class="ev"><span class="t">13:15</span> — Déploiement page hub dashboard</div>
+        <div class="ev"><span class="t">12:30</span> — Session Hermes : mise à jour v0.21.2</div>
+      </div>
+    </div>
+
+    <div class="module">
+      <div class="head"><span class="ico">&#x1F4DC;</span><h3>Savoir — Connaissances IDO</h3><span class="badge bg5">Carte</span></div>
+      <div class="row"><span>Site IDO</span><span class="c2">:8090</span></div>
+      <div class="row"><span>Tétraèdre Fiske&times;Haidt</span><span class="c1">6 livres SF</span></div>
+      <div class="row"><span>Dernière mise à jour</span><span class="c5">cron 6h</span></div>
+    </div>
+  </div>
+
+  <div class="side-panel">
+    <div class="module">
+      <div class="head"><span class="ico">&#x2699;</span><h3>Technicien</h3><span class="badge bg3">OK</span></div>
+      <div class="row"><span>&#x1F4CA; GPU</span><span class="c3">Libre</span></div>
+      <div class="row"><span>&#x1F4BE; RAM</span><span class="c3">8.2 / 24 Go</span></div>
+      <div class="row"><span>&#x1F4C0; Disque</span><span class="c2">120 / 500 Go</span></div>
+      <div class="row"><span>&#x23F3; Uptime</span><span class="c2">12h</span></div>
+      <div class="row"><span>&#x1F916; Ollama</span><span class="c3">En ligne</span></div>
+    </div>
+
+    <div class="module">
+      <div class="head"><span class="ico">&#x1F6E1;</span><h3>Gardien</h3><span class="badge bg3">Sûr</span></div>
+      <div class="row"><span>Token GitHub</span><span class="c3">Valide (90j)</span></div>
+      <div class="row"><span>Connexions actives</span><span class="c2">1 (toi)</span></div>
+      <div class="row"><span>Dernier scan ECC</span><span class="c1">aucune vulné</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="meta">
+  <strong style="color:#f0f6fc;">Aperçu minimal.</strong>
+  Les données sont statiques pour l'instant. Dans la version finale, chaque module se connecte aux vrais services (Hermes, systemd, nvidia-smi, GitHub API) et s'actualise en direct.
+</div>
+
+</div></body></html>

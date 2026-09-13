@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bateau-Atelier — Aperçu</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:#0d1117;color:#c9d1d9;font-family:system-ui,-apple-system,sans-serif;padding:1rem;}
+  .wrap{max-width:900px;margin:0 auto;}
+  .top{display:flex;align-items:center;gap:1rem;padding:1rem 0;flex-wrap:wrap;}
+  .top h1{font-size:1.4rem;flex:1;}
+  .top a{color:#58a6ff;text-decoration:none;font-size:.85rem;}
+  .top a:hover{text-decoration:underline;}
+  .subtitle{color:#8b949e;font-size:.85rem;margin-bottom:1.5rem;}
+  .grid{display:grid;grid-template-columns:1fr;gap:1rem;}
+  @media(min-width:600px){.grid{grid-template-columns:1fr 1fr;}}
+  .card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:1.5rem;}
+  .card .ico{font-size:1.8rem;margin-bottom:.5rem;}
+  .card h3{font-size:1rem;}
+  .card .desc{color:#8b949e;font-size:.85rem;margin:.3rem 0 1rem;}
+  .card ul{list-style:none;font-size:.8rem;color:#8b949e;}
+  .card li{padding:.3rem 0;}
+  .card li::before{content:'▸ ';color:#f0883e;}
+  .badge{display:inline-block;font-size:.65rem;padding:2px 8px;border-radius:4px;margin:0 4px;font-weight:600;}
+  .b1{background:rgba(240,136,62,.15);color:#f0883e;}
+  .b2{background:rgba(88,166,255,.15);color:#58a6ff;}
+  .b3{background:rgba(188,140,255,.15);color:#bc8cff;}
+  .b4{background:rgba(63,185,80,.15);color:#3fb950;}
+  .mini-dash{background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:1rem;margin-top:1rem;font-size:.8rem;}
+  .mini-dash .row{display:flex;justify-content:space-between;padding:.3rem 0;border-bottom:1px solid #21262d;}
+  .mini-dash .row:last-child{border-bottom:none;}
+  .stat{color:#3fb950;}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="top">
+  <span style="font-size:2rem;">&#x1F6A2;</span>
+  <h1>Bateau-Atelier</h1>
+  <a href="/dashboard">&larr; Retour</a>
+</div>
+<p class="subtitle">4 profils, 4 tableaux de bord. Choisis ce que tu veux faire aujourd'hui.</p>
+
+<div class="grid">
+  <div class="card">
+    <div class="ico">&#x1F4DD;</div>
+    <h3>Écrivain</h3>
+    <span class="badge b1">IDO</span>
+    <div class="desc">Chantier littéraire — tes 6 livres SF, le tétraèdre, les brouillons</div>
+    <ul>
+      <li>Pages du site IDO (:8090)</li>
+      <li>Tétraèdre Fiske&times;Haidt</li>
+      <li>Notes et brouillons en cours</li>
+      <li>Journal d'écriture</li>
+    </ul>
+    <div class="mini-dash">
+      <div class="row"><span>Dernière note</span><span class="stat">hier</span></div>
+      <div class="row"><span>Chapitres en cours</span><span class="stat">3</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ico">&#x2699;</div>
+    <h3>Ingénieur</h3>
+    <span class="badge b2">DevOps</span>
+    <div class="desc">Salle des machines — GPU, Ollama, Hermes, ECC, GitHub</div>
+    <ul>
+      <li>Statut GPU / RAM / disque</li>
+      <li>Modèles Ollama disponibles</li>
+      <li>Sessions Hermes récentes</li>
+      <li>Workflow ECC (plan &rarr; test &rarr; review)</li>
+    </ul>
+    <div class="mini-dash">
+      <div class="row"><span>GPU (RTX 4060)</span><span class="stat">12&deg;C, libre</span></div>
+      <div class="row"><span>Dernier commit</span><span class="stat">aujourd'hui</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ico">&#x1F3B8;</div>
+    <h3>Musicien</h3>
+    <span class="badge b3">Studio</span>
+    <div class="desc">Création musicale — paroles, accords, prompts IA</div>
+    <ul>
+      <li>Paroles et grilles d'accords</li>
+      <li>Prompts Suno / génération</li>
+      <li>Bibliothèque audio</li>
+    </ul>
+    <div class="mini-dash">
+      <div class="row"><span>Morceaux en cours</span><span class="stat">2</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ico">&#x1F30D;</div>
+    <h3>Explorateur</h3>
+    <span class="badge b4">Découverte</span>
+    <div class="desc">Tourne autour — apprentissage visuel, 3D, cartes mentales</div>
+    <ul>
+      <li>Carte des connaissances IDO</li>
+      <li>Visualisations 3D (bbycroft)</li>
+      <li>Sujets du moment</li>
+    </ul>
+  </div>
+</div>
+
+<div style="background:rgba(240,136,62,.08);border:1px solid #30363d;border-radius:8px;padding:1rem;margin-top:1.5rem;font-size:.85rem;color:#8b949e;">
+  <strong style="color:#f0f6fc;">Aperçu minimal.</strong> 
+  Chaque profil sera enrichi au fil des sessions. Tu choisis un profil, l'app te montre les outils et infos adaptés.
+</div>
+
+</div></body></html>

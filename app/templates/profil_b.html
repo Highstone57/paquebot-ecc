@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Journal de Bord — Aperçu</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:#0d1117;color:#c9d1d9;font-family:system-ui,-apple-system,sans-serif;padding:1rem;}
+  .wrap{max-width:900px;margin:0 auto;}
+  .top{display:flex;align-items:center;gap:1rem;padding:1rem 0;flex-wrap:wrap;}
+  .top h1{font-size:1.4rem;flex:1;}
+  .top a{color:#58a6ff;text-decoration:none;font-size:.85rem;}
+  .top a:hover{text-decoration:underline;}
+  .subtitle{color:#8b949e;font-size:.85rem;margin-bottom:1.5rem;}
+  .grid{display:grid;grid-template-columns:1fr;gap:1rem;}
+  @media(min-width:600px){.grid{grid-template-columns:1fr 1fr;}}
+  .card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:1.5rem;cursor:pointer;transition:border-color .2s;}
+  .card:hover{border-color:#58a6ff;}
+  .card .ico{font-size:1.5rem;margin-bottom:.3rem;}
+  .card h3{font-size:.95rem;}
+  .card .url{color:#484f58;font-family:monospace;font-size:.75rem;margin:.2rem 0;}
+  .card .stat{color:#8b949e;font-size:.8rem;}
+  .card .stat .up{color:#3fb950;}
+  .card .stat .down{color:#f85149;}
+  .card .badge{display:inline-block;font-size:.65rem;padding:2px 6px;border-radius:4px;font-weight:600;}
+  .badge-on{background:rgba(63,185,80,.15);color:#3fb950;}
+  .badge-off{background:rgba(248,81,73,.15);color:#f85149;}
+  .badge-warn{background:rgba(210,153,34,.15);color:#d29922;}
+  .meta{background:rgba(88,166,255,.06);border:1px solid #30363d;border-radius:8px;padding:1rem;margin-top:1.5rem;font-size:.85rem;color:#8b949e;}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="top">
+  <span style="font-size:2rem;">&#x1F4CB;</span>
+  <h1>Journal de Bord</h1>
+  <a href="/dashboard">&larr; Retour</a>
+</div>
+<p class="subtitle">Tous tes services en un coup d'&#x153;il — connecte-toi, pas besoin de retenir les ports.</p>
+
+<div class="grid">
+  <div class="card">
+    <div class="ico">&#x1F916;</div>
+    <h3>Hermes (Gateway)</h3>
+    <div class="url">localhost:8642</div>
+    <span class="badge badge-on">&#x25CF; En ligne</span>
+    <div class="stat">Chat avec ton assistant IA local</div>
+  </div>
+
+  <div class="card">
+    <div class="ico">&#x1F4DC;</div>
+    <h3>Site IDO</h3>
+    <div class="url">localhost:8090</div>
+    <span class="badge badge-on">&#x25CF; En ligne</span>
+    <div class="stat">Tes livres, connaissances, tétra&egrave;dre</div>
+  </div>
+
+  <div class="card">
+    <div class="ico">&#x1F3E0;</div>
+    <h3>Home Assistant</h3>
+    <div class="url">localhost:8123</div>
+    <span class="badge badge-warn">&#x25CF; Configuré</span>
+    <div class="stat">Contrôle de la maison</div>
+  </div>
+
+  <div class="card">
+    <div class="ico">&#x1F504;</div>
+    <h3>Ollama</h3>
+    <div class="url">localhost:11434</div>
+    <span class="badge badge-on">&#x25CF; En ligne</span>
+    <div class="stat">Mod&egrave;les locaux (RTX 4060)</div>
+  </div>
+
+  <div class="card">
+    <div class="ico">&#x1F30D;</div>
+    <h3>GitHub — Highstone57</h3>
+    <div class="url">github.com/Highstone57</div>
+    <span class="badge badge-on">&#x25CF; Connecté</span>
+    <div class="stat">Paquebot-OS &middot; personal-agent-os &middot; paquebot-ecc</div>
+  </div>
+
+  <div class="card">
+    <div class="ico">&#x1F3A5;</div>
+    <h3>Statut Syst&egrave;me</h3>
+    <div class="url">Ubuntu &middot; RTX 4060 &middot; 24G RAM</div>
+    <span class="badge badge-on">&#x25CF; 12h d'uptime</span>
+    <div class="stat">&#x1F4CA; GPU libre &middot; RAM 8G/24G &middot; Disque 120G/500G</div>
+  </div>
+</div>
+
+<div class="meta">
+  <strong style="color:#f0f6fc;">Aperçu minimal.</strong>
+  Chaque carte deviendra un embed ou lien direct. Tu cliques sur Hermes &rarr; tu arrives sur le chat. Tu cliques IDO &rarr; le site s'ouvre. Un vrai hub.
+</div>
+
+</div></body></html>

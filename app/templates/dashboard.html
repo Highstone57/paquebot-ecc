@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Paquebot-ECC — Tableau de bord</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:#0d1117;color:#c9d1d9;font-family:system-ui,-apple-system,sans-serif;padding:1rem;}
+  .hdr{text-align:center;padding:1.5rem 0;}
+  .hdr h1{font-size:1.6rem;}
+  .hdr h1 span{background:linear-gradient(135deg,#58a6ff,#bc8cff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+  .sub{color:#8b949e;font-size:.85rem;margin-top:.3rem;}
+  .user-info{text-align:center;color:#58a6ff;font-size:.85rem;margin-bottom:1.5rem;}
+  .grid{display:grid;grid-template-columns:1fr;gap:1rem;max-width:900px;margin:0 auto;}
+  @media(min-width:700px){.grid{grid-template-columns:1fr 1fr 1fr;}}
+  .card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:1.5rem;cursor:pointer;transition:border-color .2s,transform .2s;}
+  .card:hover{border-color:#58a6ff;transform:translateY(-3px);}
+  .card .icon{font-size:2rem;margin-bottom:.5rem;}
+  .card h2{font-size:1rem;margin-bottom:.5rem;}
+  .card p{font-size:.85rem;color:#8b949e;line-height:1.5;}
+  .card .tag{display:inline-block;font-size:.65rem;padding:2px 8px;border-radius:4px;margin-top:.5rem;font-weight:600;}
+  .tag-a{background:rgba(240,136,62,.15);color:#f0883e;}
+  .tag-b{background:rgba(88,166,255,.15);color:#58a6ff;}
+  .tag-c{background:rgba(188,140,255,.15);color:#bc8cff;}
+  .ftr{text-align:center;color:#484f58;font-size:.75rem;margin-top:2rem;max-width:900px;margin-left:auto;margin-right:auto;}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <h1>&#x1F6A2; <span>Paquebot-ECC</span></h1>
+  <p class="sub">Votre espace personnel</p>
+  <div class="user-info" id="user-info">&#x1F464; <span id="username-display"></span></div>
+</div>
+
+<div class="grid">
+  <div class="card" onclick="location='/dashboard/a'">
+    <div class="icon">&#x1F6A2;</div>
+    <h2>Le Bateau-Atelier</h2>
+    <p>4 profils : &#x1F4DD;Écrivain &middot; &#x2699;Ingénieur &middot; &#x1F3B8;Musicien &middot; &#x1F30D;Explorateur<br>Un tableau de bord par profil, adapté à ce que tu fais.</p>
+    <span class="tag tag-a">Profils</span>
+  </div>
+
+  <div class="card" onclick="location='/dashboard/b'">
+    <div class="icon">&#x1F4CB;</div>
+    <h2>Le Journal de Bord</h2>
+    <p>Un hub vers tous tes services : Hermes, IDO, Home&nbsp;Assistant, Ollama. Tout depuis une seule page.</p>
+    <span class="tag tag-b">Hub services</span>
+  </div>
+
+  <div class="card" onclick="location='/dashboard/c'">
+    <div class="icon">&#x1F9E0;</div>
+    <h2>La Console du Capitaine</h2>
+    <p>Un cockpit avec 5 agents : Capitaine, Observateur, Technicien, Gardien, Savoir. La vue d'ensemble de ton système.</p>
+    <span class="tag tag-c">Cockpit</span>
+  </div>
+</div>
+
+<div class="ftr">
+  <a href="/" style="color:#8b949e;text-decoration:none;">&larr; Déconnexion</a> &middot; 
+  <a href="/health" style="color:#8b949e;text-decoration:none;">&#x1F3A5; Santé</a>
+</div>
+
+<script>
+const u=JSON.parse(localStorage.getItem('paquebot_user')||'null');
+if(!u) window.location.href='/';
+else document.getElementById('username-display').textContent=u.username+' ('+u.security_level+')';
+</script>
+</body>
+</html>
