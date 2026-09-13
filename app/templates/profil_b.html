@@ -235,6 +235,7 @@
   .card:nth-child(4) { animation: cardEntry 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.32s forwards; }
   .card:nth-child(5) { animation: cardEntry 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.40s forwards; }
   .card:nth-child(6) { animation: cardEntry 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.48s forwards; }
+  .card:nth-child(7) { animation: cardEntry 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.56s forwards; }
 
   @keyframes cardEntry {
     to { opacity: 1; transform: translateY(0) scale(1); }
@@ -508,6 +509,7 @@
   .mini-progress-fill.fill-green  { background: linear-gradient(90deg, #22c55e, #4ade80); }
   .mini-progress-fill.fill-pink   { background: linear-gradient(90deg, #ec4899, #f472b6); }
   .mini-progress-fill.fill-blue   { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
+  .mini-progress-fill.fill-amber  { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
 
   /* CPU Load */
   .cpu-load {
@@ -968,6 +970,67 @@
     return div;
   }
 
+  /** Card 7: OpenRouter — Crédits */
+  function buildOpenRouterCard(data) {
+    const or = data && data.openrouter ? data.openrouter : null;
+    const total = or && or.total_credits != null ? or.total_credits : 30.0;
+    const used = or && or.total_usage != null ? or.total_usage : 11.79;
+    const remaining = or && or.remaining != null ? or.remaining : 18.21;
+    const usagePct = or && or.usage_pct != null ? or.usage_pct : 39.3;
+
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.setAttribute('data-color', 'orange');
+
+    div.innerHTML = `
+      <div class="card-top">
+        <div class="card-icon">🪙</div>
+        <div class="card-info">
+          <h3>OpenRouter — Crédits</h3>
+          <div class="url">api.openrouter.ai · API IA</div>
+        </div>
+        <div class="status-dot">
+          <span class="dot on pulse"></span>
+          <span class="label">Actif</span>
+        </div>
+      </div>
+      <div class="mini-dash">
+        <div class="mini-progress-group">
+          <div class="mini-progress-item">
+            <div class="mini-progress-header">
+              <span class="label">💰 Total</span>
+              <span class="val">${esc('$' + total.toFixed(2))}</span>
+            </div>
+          </div>
+          <div class="mini-progress-item">
+            <div class="mini-progress-header">
+              <span class="label">📤 Utilisé</span>
+              <span class="val">${esc('$' + used.toFixed(2))}</span>
+            </div>
+          </div>
+          <div class="mini-progress-item">
+            <div class="mini-progress-header">
+              <span class="label">✅ Restant</span>
+              <span class="val" style="color:#fbbf24;font-weight:700;">${esc('$' + remaining.toFixed(2))}</span>
+            </div>
+            <div class="mini-progress-track">
+              <div class="mini-progress-fill fill-amber" style="width:${Math.round(usagePct)}%"></div>
+            </div>
+            <div class="mini-progress-header" style="margin-top:0;">
+              <span class="label">Utilisation</span>
+              <span class="val">${Math.round(usagePct)}%</span>
+            </div>
+          </div>
+        </div>
+        <div style="margin-top:0.35rem;font-size:0.7rem;color:var(--text-muted);padding:0.35rem 0.5rem;background:rgba(245,158,11,0.08);border-radius:6px;border:1px solid rgba(245,158,11,0.12);line-height:1.4;">
+          🧠 Modèle local recommandé pour : RAG, résumés, classification
+        </div>
+      </div>
+    `;
+
+    return div;
+  }
+
   /* ============================================
      RENDER — full page rebuild
      ============================================ */
@@ -987,6 +1050,8 @@
     grid.appendChild(buildGitHubCard(data));
     // Card 6: System
     grid.appendChild(buildSystemCard(data));
+    // Card 7: OpenRouter — Crédits
+    grid.appendChild(buildOpenRouterCard(data));
   }
 
   /* ============================================

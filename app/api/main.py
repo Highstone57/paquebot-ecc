@@ -150,6 +150,37 @@ def rag_index():
         return {"status": "error", "message": str(e)}
 
 
+@app.get("/api/rag/sources")
+def rag_sources():
+    """Retourne le nombre de chunks par dossier source."""
+    from app.rag_engine import load_index
+    from collections import defaultdict
+    data = load_index()
+    sources = defaultdict(lambda: {"chunks": 0, "files": set()})
+    for c in data.get("chunks", []):
+        fp = c["file"]
+        if fp.startswith("/home/vianey/IDO/"):
+            src = "IDO"
+        elif fp.startswith("/home/vianey/CERVEAU/"):
+            src = "CERVEAU"
+        elif fp.startswith("/home/vianey/dev/Paquebot-OS/"):
+            src = "Paquebot-OS"
+        elif fp.startswith("/home/vianey/dev/personal-agent-os/"):
+            src = "personal-agent-os"
+        else:
+            src = "other"
+        sources[src]["chunks"] += 1
+        sources[src]["files"].add(fp)
+    result = {}
+    for src, info in sorted(sources.items()):
+        result[src] = {
+            "chunks": info["chunks"],
+            "files": sorted(list(info["files"]))[:20],
+            "file_count": len(info["files"]),
+        }
+    return {"sources": result, "total_chunks": len(data.get("chunks", []))}
+
+
 @app.get("/api/status/detailed")
 def api_status_detailed():
     """Données détaillées pour le Journal de Bord + Console."""
@@ -206,6 +237,32 @@ def api_status_detailed():
         "github_repos": github_repos,
         "cpu": cpu,
     }
+    # OpenRouter usage
+    try:
+        env_path = os.path.expanduser("~/.hermes/.env")
+        key = None
+        if os.path.exists(env_path):
+            for line in open(env_path):
+                if line.startswith("OPENROUTER_API_KEY="):
+                    key = line.strip().split("=", 1)[-1].strip("\"' \n\r")
+                    break
+        if key:
+            r = subprocess.run(
+                ["curl", "-s", "--max-time", "3", "https://openrouter.ai/api/v1/credits",
+                 "-H", f"Authorization: Bearer {key}"],
+                capture_output=True, text=True, timeout=5)
+            if r.returncode == 0:
+                d = json.loads(r.stdout)
+                cr = d.get("data", {})
+                data["openrouter"] = {
+                    "total_credits": cr.get("total_credits", 0),
+                    "total_usage": cr.get("total_usage", 0),
+                    "remaining": round(cr.get("total_credits", 0) - cr.get("total_usage", 0), 2),
+                    "usage_pct": round(cr.get("total_usage", 0) / max(cr.get("total_credits", 0.01), 0.01) * 100, 1),
+                }
+    except:
+        pass
+
     _status_cache2 = {"time": time.time(), "data": data}
     return data
 

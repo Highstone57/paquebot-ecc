@@ -6,6 +6,10 @@
 <title>RAG — Connaissances</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
+<script src="https://unpkg.com/layout-base/layout-base.js"></script>
+<script src="https://unpkg.com/cose-base/cose-base.js"></script>
+<script src="https://unpkg.com/cytoscape-cose-bilkent/cytoscape-cose-bilkent.js"></script>
 <style>
   *{margin:0;padding:0;box-sizing:border-box;}
   body{background:#0a0e17;color:#e8edf5;font-family:'Inter',sans-serif;padding:1rem;min-height:100vh;}
@@ -14,6 +18,128 @@
   .top h1{font-size:1.4rem;flex:1;}
   .top a{color:#58a6ff;text-decoration:none;font-size:.85rem;}
   .stats{font-size:.75rem;color:#8892b0;text-align:center;margin-bottom:1rem;}
+
+  /* ── Glassmorphism graph container ── */
+  .graph-container{
+    position:relative;
+    background:rgba(22,27,34,0.55);
+    backdrop-filter:blur(12px);
+    -webkit-backdrop-filter:blur(12px);
+    border:1px solid rgba(48,54,61,0.6);
+    border-radius:16px;
+    padding:1rem;
+    margin-bottom:1.5rem;
+    box-shadow:0 8px 32px rgba(0,0,0,0.4);
+    overflow:hidden;
+    min-height:380px;
+  }
+  .graph-container h2{
+    font-size:.8rem;
+    font-weight:500;
+    color:#8b949e;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    margin-bottom:.5rem;
+    display:flex;
+    align-items:center;
+    gap:.4rem;
+  }
+  .graph-container h2 span{font-size:.9rem;}
+  #cy{
+    width:100%;
+    height:340px;
+    border-radius:10px;
+    background:rgba(13,17,23,0.3);
+  }
+  .graph-legend{
+    display:flex;
+    flex-wrap:wrap;
+    gap:.6rem 1rem;
+    margin-top:.6rem;
+    padding-top:.6rem;
+    border-top:1px solid rgba(48,54,61,0.4);
+  }
+  .graph-legend .legend-item{
+    display:flex;
+    align-items:center;
+    gap:.35rem;
+    font-size:.7rem;
+    color:#8b949e;
+    cursor:pointer;
+    transition:color .15s;
+  }
+  .graph-legend .legend-item:hover{color:#e8edf5;}
+  .graph-legend .legend-dot{
+    width:10px;
+    height:10px;
+    border-radius:50%;
+    flex-shrink:0;
+  }
+  .graph-legend .legend-count{
+    font-size:.65rem;
+    color:#484f58;
+    margin-left:auto;
+  }
+  .graph-tooltip{
+    position:absolute;
+    background:rgba(13,17,23,0.92);
+    backdrop-filter:blur(8px);
+    -webkit-backdrop-filter:blur(8px);
+    border:1px solid #30363d;
+    border-radius:8px;
+    padding:.5rem .7rem;
+    font-size:.75rem;
+    color:#e8edf5;
+    pointer-events:none;
+    opacity:0;
+    transition:opacity .15s;
+    z-index:100;
+    max-width:260px;
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    box-shadow:0 4px 16px rgba(0,0,0,0.5);
+  }
+  .graph-tooltip.show{opacity:1;}
+  .graph-tooltip .tt-source{
+    color:#58a6ff;
+    font-size:.65rem;
+    font-weight:500;
+    text-transform:uppercase;
+    letter-spacing:.06em;
+  }
+  .graph-tooltip .tt-file{
+    color:#e8edf5;
+    font-weight:500;
+    margin-top:2px;
+  }
+  .graph-tooltip .tt-chunks{
+    color:#8892b0;
+    font-size:.65rem;
+  }
+  .graph-loading{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    color:#484f58;
+    font-size:.8rem;
+    text-align:center;
+    pointer-events:none;
+  }
+  .graph-loading .spinner{
+    display:inline-block;
+    width:20px;
+    height:20px;
+    border:2px solid #30363d;
+    border-top-color:#58a6ff;
+    border-radius:50%;
+    animation:spin .8s linear infinite;
+    margin-bottom:.4rem;
+  }
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  /* ── Search ── */
   .search-box{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:1rem;margin-bottom:1rem;}
   .search-box input{width:100%;padding:.8rem;background:#0d1117;border:1px solid #30363d;border-radius:8px;color:#f0f6fc;font-size:1rem;}
   .search-box button{width:100%;margin-top:.6rem;padding:.6rem;background:#238636;border:none;border-radius:8px;color:#fff;font-size:.9rem;font-weight:600;cursor:pointer;}
@@ -31,6 +157,20 @@
   @media(max-width:600px){.kb-grid{grid-template-columns:1fr;}}
   .kb-item{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:.5rem;text-align:center;font-size:.8rem;color:#8b949e;}
   .kb-item strong{color:#58a6ff;font-size:1.2rem;display:block;}
+
+  /* ── Mobile responsive ── */
+  @media(max-width:600px){
+    .graph-container{min-height:300px;padding:.7rem;}
+    #cy{height:260px;}
+    .graph-legend{gap:.4rem .6rem;}
+    .graph-legend .legend-item{font-size:.65rem;}
+    .graph-tooltip{font-size:.7rem;max-width:200px;}
+    .top h1{font-size:1.1rem;}
+  }
+  @media(max-width:400px){
+    #cy{height:220px;}
+    .graph-container{min-height:260px;}
+  }
 </style>
 </head>
 <body>
@@ -44,6 +184,18 @@
   <div class="stats" id="stats">Index chargement...</div>
   <div class="kb-grid" id="kb-grid"></div>
 
+  <!-- ── Knowledge Graph ── -->
+  <div class="graph-container" id="graph-container">
+    <h2><span>&#x1F4CA;</span> Graphe de connaissances</h2>
+    <div id="cy"></div>
+    <div class="graph-loading" id="graph-loading">
+      <div class="spinner"></div>
+      Chargement du graphe...
+    </div>
+    <div class="graph-legend" id="legend"></div>
+    <div class="graph-tooltip" id="tooltip"></div>
+  </div>
+
   <div class="search-box">
     <input id="query" placeholder="Pose une question sur tous tes documents..." autofocus>
     <button id="search-btn" onclick="search()">&#x1F50D; Chercher</button>
@@ -53,6 +205,255 @@
 </div>
 
 <script>
+// ── Colour palette for sources ──
+const COLORS = {
+  "IDO":              {bg:"#8b5cf6", border:"#a78bfa"},      // violet
+  "CERVEAU":          {bg:"#ef4444", border:"#f87171"},      // red
+  "Paquebot-OS":      {bg:"#22c55e", border:"#4ade80"},      // green
+  "personal-agent-os":{bg:"#3b82f6", border:"#60a5fa"},      // blue
+};
+
+// ── Graph state ──
+let cy = null;
+
+// Build graph from API data
+async function buildGraph(){
+  const loading = document.getElementById('graph-loading');
+  const cyEl = document.getElementById('cy');
+  const legend = document.getElementById('legend');
+
+  let data;
+  try{
+    const r = await fetch('/api/rag/sources');
+    data = await r.json();
+  }catch(e){
+    loading.innerHTML = '&#x26A0;&#xFE0F; API non disponible';
+    return;
+  }
+
+  const sources = data.sources;
+  if(!sources || Object.keys(sources).length === 0){
+    loading.innerHTML = '&#x26A0;&#xFE0F; Aucune donnée';
+    return;
+  }
+
+  // Build nodes and edges
+  const nodes = [];
+  const edges = [];
+  const sourceKeys = Object.keys(sources).filter(k => k !== 'other');
+
+  sourceKeys.forEach((src, srcIdx) => {
+    const info = sources[src];
+    const color = COLORS[src] || {bg:"#6b7280", border:"#9ca3af"};
+    const maxR = 30, minR = 14;
+    const r = Math.min(maxR, Math.max(minR, 10 + Math.round(Math.sqrt(info.chunks) * 1.5)));
+
+    // Source cluster node
+    const srcId = 'src-' + src.replace(/[^a-zA-Z0-9]/g, '_');
+    nodes.push({
+      data: {
+        id: srcId,
+        label: src,
+        type: 'source',
+        source: src,
+        chunks: info.chunks,
+        files: info.file_count,
+        bg: color.bg,
+        bd: color.border,
+        bw: 2,
+        w: r * 2,
+        h: r * 2,
+        fs: Math.max(9, Math.min(14, r * 0.55)),
+      },
+    });
+
+    // Document file nodes within this source
+    const fileList = info.files || [];
+    fileList.forEach((fp, fi) => {
+      const fname = fp.split('/').pop();
+      const nodeId = 'n-' + srcIdx + '-' + fi;
+      const docR = Math.max(6, 12 - Math.min(fi, 8));
+      nodes.push({
+        data: {
+          id: nodeId,
+          label: fname,
+          type: 'doc',
+          source: src,
+          file: fp,
+          fileShort: fname,
+          bg: color.bg,
+          bd: color.border,
+          bw: 1,
+          w: docR * 2,
+          h: docR * 2,
+        },
+      });
+      // Edge from source to doc
+      edges.push({
+        data: {
+          id: 'e-' + srcId + '-' + nodeId,
+          source: srcId,
+          target: nodeId,
+        },
+      });
+    });
+  });
+
+  // Inter-source edges (connect all source nodes lightly)
+  for(let i = 0; i < sourceKeys.length; i++){
+    for(let j = i + 1; j < sourceKeys.length; j++){
+      const idA = 'src-' + sourceKeys[i].replace(/[^a-zA-Z0-9]/g, '_');
+      const idB = 'src-' + sourceKeys[j].replace(/[^a-zA-Z0-9]/g, '_');
+      edges.push({
+        data: { id: 'es-' + i + '-' + j, source: idA, target: idB },
+      });
+    }
+  }
+
+  const cyInstance = cytoscape({
+    container: cyEl,
+    elements: {nodes, edges},
+    style: [
+      {
+        selector: 'node[type = "source"]',
+        style: {
+          'background-color': 'data(bg)',
+          'border-color': 'data(bd)',
+          'border-width': 'data(bw)',
+          width: 'data(w)',
+          height: 'data(h)',
+          label: 'data(label)',
+          color: '#fff',
+          'font-family': 'Inter, sans-serif',
+          'font-weight': 600,
+          'text-valign': 'center',
+          'text-halign': 'center',
+          'font-size': 'data(fs)',
+          'text-background-color': 'rgba(13,17,23,0.6)',
+          'text-background-opacity': 1,
+          'text-background-padding': '3px',
+          'text-background-shape': 'roundrectangle',
+          'min-zoomed-font-size': 6,
+        }
+      },
+      {
+        selector: 'node[type = "doc"]',
+        style: {
+          'background-color': 'data(bg)',
+          'border-color': 'data(bd)',
+          'border-width': 'data(bw)',
+          width: 'data(w)',
+          height: 'data(h)',
+          opacity: 0.8,
+        }
+      },
+      {
+        selector: 'edge',
+        style: {
+          width: 1,
+          'line-color': '#30363d',
+          opacity: 0.35,
+          'curve-style': 'bezier',
+        }
+      },
+      {
+        selector: 'node:selected',
+        style: {
+          'border-color': '#f0f6fc',
+          'border-width': 3,
+        }
+      },
+      {
+        selector: 'node:active, edge:active',
+        style: {
+          'overlay-opacity': 0,
+        }
+      },
+    ],
+    layout: {
+      name: 'cose-bilkent',
+      animate: true,
+      animationDuration: 800,
+      idealEdgeLength: 120,
+      nodeRepulsion: 8000,
+      gravity: 0.5,
+      numIter: 1000,
+      tile: true,
+      nestingFactor: 0.8,
+    },
+    wheelSensitivity: 0.5,
+    minZoom: 0.5,
+    maxZoom: 3,
+  });
+
+  // ── Interactions ──
+  const tooltip = document.getElementById('tooltip');
+
+  cyInstance.on('mouseover', 'node', function(evt){
+    const n = evt.target;
+    const d = n.data();
+    if(d.type === 'source'){
+      tooltip.innerHTML = '<div class="tt-source">' + d.source + '</div><div class="tt-chunks">' + d.chunks + ' chunks &middot; ' + d.files + ' fichiers</div>';
+    } else {
+      tooltip.innerHTML = '<div class="tt-source">' + d.source + '</div><div class="tt-file">' + d.fileShort + '</div><div class="tt-chunks">' + d.file + '</div>';
+    }
+    const pos = n.renderedPosition();
+    tooltip.style.left = (pos.x + 15) + 'px';
+    tooltip.style.top = (pos.y - 10) + 'px';
+    tooltip.classList.add('show');
+  });
+
+  cyInstance.on('mouseout', 'node', function(){
+    tooltip.classList.remove('show');
+  });
+
+  cyInstance.on('tap', 'node', function(evt){
+    const n = evt.target;
+    const d = n.data();
+    let searchTerm;
+    if(d.type === 'source'){
+      searchTerm = d.source;
+    } else {
+      const fname = d.fileShort.replace(/\.md$/, '').replace(/[-_]/g, ' ');
+      searchTerm = fname;
+    }
+    document.getElementById('query').value = searchTerm;
+    search();
+  });
+
+  // Hide tooltip on pan/zoom
+  cyInstance.on('pan zoom drag', function(){
+    if(tooltip.classList.contains('show')){
+      tooltip.classList.remove('show');
+    }
+  });
+
+  cy = cyInstance;
+  loading.style.display = 'none';
+
+  // ── Legend ──
+  legend.innerHTML = '';
+  sourceKeys.forEach(src => {
+    const info = sources[src];
+    const color = COLORS[src] || {bg:"#6b7280"};
+    const item = document.createElement('div');
+    item.className = 'legend-item';
+    item.innerHTML = '<span class="legend-dot" style="background:' + color.bg + '"></span>' + src + ' <span style="color:#484f58;font-size:.65rem;">(' + info.chunks + ')</span>';
+    item.addEventListener('click', () => {
+      const srcId = 'src-' + src.replace(/[^a-zA-Z0-9]/g, '_');
+      const node = cyInstance.getElementById(srcId);
+      if(node.length){
+        cyInstance.animate({
+          fit: {eles: node.connectedNodes().add(node), padding: 60},
+          duration: 400,
+        });
+      }
+    });
+    legend.appendChild(item);
+  });
+}
+
+// ── Search ──
 async function search(){
   const q=document.getElementById('query').value.trim();
   if(!q)return;
@@ -64,22 +465,26 @@ async function search(){
     const res=await fetch('/api/rag/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q})});
     const d=await res.json();
     if(!d.results||d.results.length===0){r.innerHTML='<div class="empty">Aucun résultat trouvé</div>';return;}
-    r.innerHTML=d.results.map((x,i)=>`<div class="result"><div class="file">${x.file.split('/').pop()}</div><div class="score">score: ${x.score}</div><div class="text">${x.text}</div><div class="source">${x.file}</div></div>`).join('');
+    r.innerHTML=d.results.map((x,i)=>'<div class="result"><div class="file">'+x.file.split('/').pop()+'</div><div class="score">score: '+x.score+'</div><div class="text">'+x.text+'</div><div class="source">'+x.file+'</div></div>').join('');
   }catch(e){r.innerHTML='<div class="empty">Erreur: '+e.message+'</div>';}
   finally{btn.disabled=false;ld.style.display='none';}
 }
 
-// Stats
+// ── Init ──
 (async()=>{
+  // Stats
   try{
     const r=await fetch('/api/status/detailed');
     const d=await r.json();
     const s=d.system||{};
-    document.getElementById('stats').textContent=`${d.ollama_models?.length||0} modèles IA · GPU ${s.gpu?.[0]?.temp||'?'}°C · RAM ${s.ram?.avail_gb||'?'}/${s.ram?.total_gb||'?'} Go`;
+    document.getElementById('stats').textContent=(d.ollama_models?.length||0)+' modèles IA · GPU '+(s.gpu?.[0]?.temp||'?')+'°C · RAM '+(s.ram?.avail_gb||'?')+'/'+(s.ram?.total_gb||'?')+' Go';
     document.getElementById('kb-grid').innerHTML=
       '<div class="kb-item"><strong>4</strong>dossiers indexés</div>'+
       '<div class="kb-item"><strong>401</strong>chunks de connaissances</div>';
   }catch(e){}
+
+  // Build graph
+  buildGraph();
 })();
 
 // Enter to search
