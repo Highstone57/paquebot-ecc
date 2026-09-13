@@ -4,95 +4,601 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Paquebot-ECC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
   body {
-    background: #0d1117; color: #c9d1d9;
-    font-family: system-ui, -apple-system, sans-serif;
-    min-height: 100vh; display: flex; flex-direction: column;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #0a0a0f;
+    overflow: hidden;
+    position: relative;
   }
-  .container { max-width: 500px; margin: auto; padding: 2rem 1rem; width: 100%; }
-  header { text-align: center; margin-bottom: 2rem; }
-  h1 { font-size: 2rem; }
-  h1 span { background: linear-gradient(135deg, #58a6ff, #bc8cff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-  .subtitle { color: #8b949e; margin-top: .3rem; font-size: .9rem; }
-  .card { background: #161b22; border: 1px solid #30363d; border-radius: 12px; padding: 1.5rem; margin: 1rem 0; }
-  .card h2 { font-size: 1.1rem; margin-bottom: 1rem; }
-  label { display: block; margin: .8rem 0 .3rem; color: #8b949e; font-size: .85rem; }
-  input, select { width: 100%; padding: .7rem; background: #0d1117; border: 1px solid #30363d; border-radius: 8px; color: #f0f6fc; font-size: 1rem; }
-  button { width: 100%; margin-top: 1rem; padding: .7rem; background: #238636; border: none; border-radius: 8px; color: #fff; font-size: 1rem; font-weight: 600; cursor: pointer; }
-  button:hover { background: #2ea043; }
-  .result { margin-top: 1rem; padding: 1rem; border-radius: 8px; font-size: .9rem; display: none; }
-  .success { background: rgba(63,185,80,.1); border: 1px solid #3fb950; }
-  .error { background: rgba(248,81,73,.1); border: 1px solid #f85149; }
-  nav { display: flex; gap: 1rem; justify-content: center; margin-bottom: 1rem; }
-  nav a { color: #58a6ff; text-decoration: none; font-size: .9rem; cursor: pointer; }
-  nav a:hover { text-decoration: underline; }
-  .json { font-family: monospace; font-size: .8rem; white-space: pre-wrap; }
-  .status { text-align: center; color: #484f58; font-size: .75rem; margin-top: 2rem; }
+
+  /* ---- Ambient animated background (gradient orbs) ---- */
+  .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.25;
+    pointer-events: none;
+    animation: orbFloat 18s ease-in-out infinite;
+    z-index: 0;
+  }
+  .orb:nth-child(1) {
+    width: 600px; height: 600px;
+    background: radial-gradient(circle, #6366f1, #8b5cf6);
+    top: -200px; left: -150px;
+    animation-delay: 0s;
+  }
+  .orb:nth-child(2) {
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, #a855f7, #d946ef);
+    bottom: -150px; right: -100px;
+    animation-delay: -6s;
+  }
+  .orb:nth-child(3) {
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, #06b6d4, #3b82f6);
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    animation-delay: -12s;
+  }
+
+  @keyframes orbFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    25% { transform: translate(60px, -80px) scale(1.1); }
+    50% { transform: translate(-40px, 50px) scale(0.9); }
+    75% { transform: translate(30px, 40px) scale(1.05); }
+  }
+
+  /* ---- Glassmorphism card wrapper ---- */
+  .wrapper {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 440px;
+    padding: 1rem;
+  }
+
+  .glass-card {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(24px) saturate(1.4);
+    -webkit-backdrop-filter: blur(24px) saturate(1.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 2.5rem 2rem 2rem;
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.6),
+      inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  }
+
+  /* ---- Logo ---- */
+  .logo {
+    text-align: center;
+    margin-bottom: 1.75rem;
+  }
+  .logo-icon {
+    font-size: 2.2rem;
+    display: block;
+    margin-bottom: 0.3rem;
+  }
+  .logo-text {
+    font-size: 1.65rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #c084fc, #818cf8, #38bdf8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* ---- Tabs ---- */
+  .tabs {
+    display: flex;
+    gap: 0;
+    margin-bottom: 1.75rem;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    padding: 3px;
+    position: relative;
+  }
+  .tab-btn {
+    flex: 1;
+    border: none;
+    background: transparent;
+    color: rgba(255, 255, 255, 0.4);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 0.7rem 0;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    position: relative;
+    z-index: 2;
+  }
+  .tab-btn:hover {
+    color: rgba(255, 255, 255, 0.7);
+  }
+  .tab-btn.active {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+  }
+
+  /* ---- Tab content ---- */
+  .tab-content {
+    position: relative;
+    overflow: hidden;
+  }
+  .tab-pane {
+    display: none;
+    animation: fadeSlideIn 0.35s ease forwards;
+  }
+  .tab-pane.active {
+    display: block;
+  }
+
+  @keyframes fadeSlideIn {
+    0% { opacity: 0; transform: translateY(10px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ---- Forms ---- */
+  .form-group {
+    margin-bottom: 1.25rem;
+  }
+  .form-group label {
+    display: block;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 0.8rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 0.4rem;
+  }
+  .form-group input,
+  .form-group select {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    color: #f0f0f0;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .form-group input:focus,
+  .form-group select:focus {
+    border-color: rgba(129, 140, 248, 0.5);
+    box-shadow: 0 0 0 3px rgba(129, 140, 248, 0.12);
+  }
+  .form-group select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' fill='none'%3E%3Cpath stroke='%238b8b9e' stroke-width='1.5' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    padding-right: 2.5rem;
+  }
+  .form-group select option {
+    background: #1a1a2a;
+    color: #f0f0f0;
+  }
+
+  /* ---- Validation styling ---- */
+  .form-group input.error,
+  .form-group select.error {
+    border-color: rgba(239, 68, 68, 0.6);
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+  }
+  .form-group .error-msg {
+    color: #f87171;
+    font-size: 0.75rem;
+    font-weight: 400;
+    margin-top: 0.3rem;
+    display: none;
+  }
+  .form-group .error-msg.show {
+    display: block;
+  }
+  .form-group input.valid,
+  .form-group select.valid {
+    border-color: rgba(74, 222, 128, 0.5);
+  }
+
+  /* ---- Submit button ---- */
+  .btn-submit {
+    width: 100%;
+    padding: 0.85rem;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #818cf8, #a78bfa);
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.2s, opacity 0.2s;
+    margin-top: 0.25rem;
+    letter-spacing: 0.01em;
+  }
+  .btn-submit:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(129, 140, 248, 0.3);
+  }
+  .btn-submit:active {
+    transform: translateY(0);
+  }
+  .btn-submit:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* ---- Result / message ---- */
+  .msg {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    display: none;
+    line-height: 1.5;
+    font-weight: 450;
+  }
+  .msg.show { display: block; }
+  .msg.success {
+    background: rgba(74, 222, 128, 0.1);
+    border: 1px solid rgba(74, 222, 128, 0.25);
+    color: #86efac;
+  }
+  .msg.error {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.25);
+    color: #fca5a5;
+  }
+
+  /* ---- Status bar ---- */
+  .status-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 5;
+    background: rgba(10, 10, 15, 0.75);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+    padding: 0.5rem 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.25rem;
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.35);
+    font-family: 'Inter', sans-serif;
+    flex-wrap: wrap;
+    min-height: 2.4rem;
+  }
+  .status-bar .status-item {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+  }
+  .status-dot.on { background: #4ade80; box-shadow: 0 0 6px rgba(74, 222, 128, 0.4); }
+  .status-dot.off { background: #6b7280; }
+  .status-label { opacity: 0.6; }
+
+  /* ---- Mobile responsive ---- */
+  @media (max-width: 500px) {
+    .glass-card {
+      padding: 1.75rem 1.25rem 1.5rem;
+      border-radius: 16px;
+    }
+    .logo-text { font-size: 1.35rem; }
+    .tab-btn { font-size: 0.82rem; padding: 0.6rem 0; }
+    .form-group input,
+    .form-group select { padding: 0.7rem 0.85rem; font-size: 0.9rem; }
+    .status-bar {
+      gap: 0.75rem;
+      font-size: 0.65rem;
+      padding: 0.4rem 0.75rem;
+    }
+  }
 </style>
 </head>
 <body>
-<div class="container">
-  <header>
-    <h1>&#x1F6A2; <span>Paquebot-ECC</span></h1>
-    <p class="subtitle">Construit avec le workflow ECC</p>
-  </header>
-  <nav>
-    <a onclick="showTab('login')">&#x1F511; Connexion</a>
-    <a onclick="showTab('register')">&#x1F4CB; Inscription</a>
-  </nav>
 
-  <div id="login-card" class="card">
-    <h2>&#x1F511; Connexion</h2>
-    <label>Nom d'utilisateur</label>
-    <input id="login-user">
-    <label>Mot de passe</label>
-    <input id="login-pass" type="password">
-    <button onclick="login()">Se connecter</button>
-    <div id="login-result" class="result"></div>
-  </div>
+<!-- Ambient orbs -->
+<div class="orb"></div>
+<div class="orb"></div>
+<div class="orb"></div>
 
-  <div id="register-card" class="card" style="display:none;">
-    <h2>&#x1F4CB; Inscription</h2>
-    <label>Nom d'utilisateur</label>
-    <input id="reg-user">
-    <label>Mot de passe</label>
-    <input id="reg-pass" type="password">
-    <label>Niveau de sécurité</label>
-    <select id="reg-level">
-      <option value="public">&#x1F310; Public</option>
-      <option value="shared">&#x1F91D; Partagé</option>
-      <option value="private">&#x1F512; Privé</option>
-    </select>
-    <button onclick="register()">Créer mon compte</button>
-    <div id="reg-result" class="result"></div>
-  </div>
+<!-- Main wrapper -->
+<div class="wrapper">
+  <div class="glass-card">
+
+    <!-- Logo -->
+    <div class="logo">
+      <span class="logo-icon">&#x1F6A2;</span>
+      <div class="logo-text">Paquebot-ECC</div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="login" onclick="switchTab('login')">Connexion</button>
+      <button class="tab-btn" data-tab="register" onclick="switchTab('register')">Inscription</button>
+    </div>
+
+    <!-- Tab content -->
+    <div class="tab-content">
+
+      <!-- Login pane -->
+      <div class="tab-pane active" id="pane-login">
+        <div class="form-group">
+          <label for="login-user">Nom d'utilisateur</label>
+          <input id="login-user" type="text" autocomplete="username" placeholder="Entrez votre identifiant">
+          <div class="error-msg" id="login-user-err"></div>
+        </div>
+        <div class="form-group">
+          <label for="login-pass">Mot de passe</label>
+          <input id="login-pass" type="password" autocomplete="current-password" placeholder="Entrez votre mot de passe">
+          <div class="error-msg" id="login-pass-err"></div>
+        </div>
+        <button class="btn-submit" id="login-btn" onclick="login()">Se connecter</button>
+        <div class="msg" id="login-msg"></div>
+      </div>
+
+      <!-- Register pane -->
+      <div class="tab-pane" id="pane-register">
+        <div class="form-group">
+          <label for="reg-user">Nom d'utilisateur</label>
+          <input id="reg-user" type="text" autocomplete="username" placeholder="Choisissez un identifiant">
+          <div class="error-msg" id="reg-user-err"></div>
+        </div>
+        <div class="form-group">
+          <label for="reg-pass">Mot de passe</label>
+          <input id="reg-pass" type="password" autocomplete="new-password" placeholder="Choisissez un mot de passe">
+          <div class="error-msg" id="reg-pass-err"></div>
+        </div>
+        <div class="form-group">
+          <label for="reg-level">Niveau de sécurité</label>
+          <select id="reg-level">
+            <option value="public">&#x1F310; Public</option>
+            <option value="shared">&#x1F91D; Partagé</option>
+            <option value="private">&#x1F512; Privé</option>
+          </select>
+        </div>
+        <button class="btn-submit" id="register-btn" onclick="register()">Créer mon compte</button>
+        <div class="msg" id="reg-msg"></div>
+      </div>
+
+    </div><!-- /tab-content -->
+  </div><!-- /glass-card -->
+</div><!-- /wrapper -->
+
+<!-- Status bar -->
+<div class="status-bar" id="status-bar">
+  <span style="opacity:0.4">Chargement du statut...</span>
 </div>
 
 <script>
-function showTab(t){ 
-  document.getElementById('login-card').style.display = t==='login'?'block':'none';
-  document.getElementById('register-card').style.display = t==='register'?'block':'none';
+/* ======================== Tab switching ======================== */
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelector('.tab-btn[data-tab="'+name+'"]').classList.add('active');
+  document.getElementById('pane-'+name).classList.add('active');
+  // Clear previous messages
+  document.querySelectorAll('.msg').forEach(m => { m.classList.remove('show'); m.textContent = ''; });
+  document.querySelectorAll('.form-group input, .form-group select').forEach(el => {
+    el.classList.remove('error','valid');
+  });
+  document.querySelectorAll('.error-msg').forEach(e => e.classList.remove('show'));
 }
-async function api(p,b){ const r=await fetch(p,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(b)});return {ok:r.ok,data:await r.json()}; }
-function showResult(el,d){ 
-  el.style.display='block';
-  if(d.success||d.detail===undefined) el.className='result success', el.innerHTML='<strong>&#x2705; OK</strong><br><div class="json">'+JSON.stringify(d,null,2)+'</div>';
-  else el.className='result error', el.innerHTML='<strong>&#x274C; Erreur</strong><br>'+(d.detail||'Inconnue');
+
+/* ======================== Form validation ======================== */
+function validateField(el, errEl, test) {
+  const err = test(el.value.trim());
+  if (err) {
+    el.classList.add('error');
+    el.classList.remove('valid');
+    errEl.textContent = err;
+    errEl.classList.add('show');
+    return false;
+  }
+  el.classList.remove('error');
+  el.classList.add('valid');
+  errEl.classList.remove('show');
+  return true;
 }
-async function login(){
-  const {ok,data}=await api('/auth/login',{username:document.getElementById('login-user').value,password:document.getElementById('login-pass').value});
-  if(ok){ localStorage.setItem('paquebot_user',JSON.stringify(data)); window.location.href='/dashboard'; }
-  else showResult(document.getElementById('login-result'),data);
+
+function validateLogin() {
+  const user = document.getElementById('login-user');
+  const pass = document.getElementById('login-pass');
+  let ok = true;
+  ok &= validateField(user, document.getElementById('login-user-err'), v => {
+    if (!v) return 'Nom d\'utilisateur requis';
+    if (v.length < 3) return 'Minimum 3 caractères';
+    return null;
+  });
+  ok &= validateField(pass, document.getElementById('login-pass-err'), v => {
+    if (!v) return 'Mot de passe requis';
+    if (v.length < 4) return 'Minimum 4 caractères';
+    return null;
+  });
+  return ok;
 }
-async function register(){
-  const {ok,data}=await api('/auth/register',{username:document.getElementById('reg-user').value,password:document.getElementById('reg-pass').value,security_level:document.getElementById('reg-level').value});
-  showResult(document.getElementById('reg-result'),data);
-  if(ok) setTimeout(()=>{ showTab('login'); },1500);
+
+function validateRegister() {
+  const user = document.getElementById('reg-user');
+  const pass = document.getElementById('reg-pass');
+  let ok = true;
+  ok &= validateField(user, document.getElementById('reg-user-err'), v => {
+    if (!v) return 'Nom d\'utilisateur requis';
+    if (v.length < 3) return 'Minimum 3 caractères';
+    if (!/^[a-zA-Z0-9_]+$/.test(v)) return 'Lettres, chiffres, underscores uniquement';
+    return null;
+  });
+  ok &= validateField(pass, document.getElementById('reg-pass-err'), v => {
+    if (!v) return 'Mot de passe requis';
+    if (v.length < 4) return 'Minimum 4 caractères';
+    return null;
+  });
+  return ok;
 }
-// Auto-redirect si déjà connecté
-if(localStorage.getItem('paquebot_user')) window.location.href='/dashboard';
+
+// Real-time validation on blur
+document.querySelectorAll('#login-user, #login-pass').forEach(el => {
+  el.addEventListener('blur', function() {
+    const id = this.id;
+    if (id === 'login-user') validateField(this, document.getElementById('login-user-err'), v => !v ? 'Requis' : v.length < 3 ? 'Min 3 car.' : null);
+    if (id === 'login-pass') validateField(this, document.getElementById('login-pass-err'), v => !v ? 'Requis' : v.length < 4 ? 'Min 4 car.' : null);
+  });
+});
+document.querySelectorAll('#reg-user, #reg-pass').forEach(el => {
+  el.addEventListener('blur', function() {
+    const id = this.id;
+    if (id === 'reg-user') validateField(this, document.getElementById('reg-user-err'), v => {
+      if (!v) return 'Requis';
+      if (v.length < 3) return 'Min 3 car.';
+      if (!/^[a-zA-Z0-9_]+$/.test(v)) return 'Caractères autorisés: a-z, 0-9, _';
+      return null;
+    });
+    if (id === 'reg-pass') validateField(this, document.getElementById('reg-pass-err'), v => !v ? 'Requis' : v.length < 4 ? 'Min 4 car.' : null);
+  });
+});
+
+/* ======================== API helper ======================== */
+async function api(path, body) {
+  const r = await fetch(path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body)
+  });
+  return { ok: r.ok, data: await r.json() };
+}
+
+function showMsg(el, ok, text) {
+  el.className = 'msg show ' + (ok ? 'success' : 'error');
+  el.textContent = text;
+}
+
+/* ======================== Login ======================== */
+async function login() {
+  if (!validateLogin()) return;
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true;
+  btn.textContent = 'Connexion...';
+  const msg = document.getElementById('login-msg');
+  try {
+    const { ok, data } = await api('/auth/login', {
+      username: document.getElementById('login-user').value.trim(),
+      password: document.getElementById('login-pass').value
+    });
+    if (ok) {
+      localStorage.setItem('paquebot_user', JSON.stringify(data));
+      showMsg(msg, true, 'Connexion réussie, redirection...');
+      setTimeout(() => { window.location.href = '/dashboard'; }, 500);
+    } else {
+      showMsg(msg, false, data.detail || 'Échec de la connexion');
+    }
+  } catch(e) {
+    showMsg(msg, false, 'Erreur réseau: ' + (e.message || 'impossible de joindre le serveur'));
+  }
+  btn.disabled = false;
+  btn.textContent = 'Se connecter';
+}
+
+/* ======================== Register ======================== */
+async function register() {
+  if (!validateRegister()) return;
+  const btn = document.getElementById('register-btn');
+  btn.disabled = true;
+  btn.textContent = 'Inscription...';
+  const msg = document.getElementById('reg-msg');
+  try {
+    const { ok, data } = await api('/auth/register', {
+      username: document.getElementById('reg-user').value.trim(),
+      password: document.getElementById('reg-pass').value,
+      security_level: document.getElementById('reg-level').value
+    });
+    if (ok) {
+      showMsg(msg, true, 'Compte créé ! Redirection vers la connexion...');
+      setTimeout(() => { switchTab('login'); document.getElementById('reg-msg').classList.remove('show'); }, 1500);
+    } else {
+      showMsg(msg, false, data.detail || 'Échec de l\'inscription');
+    }
+  } catch(e) {
+    showMsg(msg, false, 'Erreur réseau: ' + (e.message || 'impossible de joindre le serveur'));
+  }
+  btn.disabled = false;
+  btn.textContent = 'Créer mon compte';
+}
+
+/* ======================== Status bar ======================== */
+async function fetchStatus() {
+  const bar = document.getElementById('status-bar');
+  try {
+    const r = await fetch('/api/status');
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const { services, system } = await r.json();
+    const items = [];
+    const svcOrder = ['hermes', 'ido', 'ollama', 'home_asst', 'app'];
+    svcOrder.forEach(key => {
+      const s = services[key];
+      if (!s) return;
+      const on = s.on === true || s.on === 'on' || s.on === 1;
+      items.push(
+        '<span class="status-item">' +
+        '<span class="status-dot ' + (on ? 'on' : 'off') + '"></span>' +
+        '<span class="status-label">' + (s.label || key) + '</span>' +
+        '</span>'
+      );
+    });
+    // System summary
+    let sys = '';
+    if (system) {
+      const diskFree = system.disk ? system.disk.free_gb : '?';
+      const ramAvail = system.ram ? system.ram.avail_gb : '?';
+      sys = '<span class="status-item" style="opacity:0.5">\u23F1 ' + (system.uptime_h || '?') + 'h &middot; ' +
+        '\uD83D\uDCBE ' + diskFree + ' Go libres &middot; ' +
+        '\uD83D\uDDA5 ' + ramAvail + ' Go RAM dispo</span>';
+    }
+    bar.innerHTML = items.join('') + sys;
+  } catch(e) {
+    bar.innerHTML = '<span style="opacity:0.4">Statut indisponible</span>';
+  }
+}
+
+/* ======================== Auto-redirect if logged in ======================== */
+(function() {
+  if (localStorage.getItem('paquebot_user')) {
+    window.location.href = '/dashboard';
+  }
+})();
+
+/* ======================== Init ======================== */
+fetchStatus();
+// Refresh status every 30s
+setInterval(fetchStatus, 30000);
 </script>
 </body>
 </html>

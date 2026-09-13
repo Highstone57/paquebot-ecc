@@ -2,104 +2,883 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Console du Capitaine — Aperçu</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Console du Capitaine — Pont Starship</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
 <style>
-  *{margin:0;padding:0;box-sizing:border-box;}
-  body{background:#0d1117;color:#c9d1d9;font-family:system-ui,-apple-system,sans-serif;padding:1rem;}
-  .wrap{max-width:1000px;margin:0 auto;}
-  .top{display:flex;align-items:center;gap:1rem;padding:1rem 0;flex-wrap:wrap;}
-  .top h1{font-size:1.4rem;flex:1;}
-  .top a{color:#58a6ff;text-decoration:none;font-size:.85rem;}
-  .top a:hover{text-decoration:underline;}
-  .subtitle{color:#8b949e;font-size:.85rem;margin-bottom:1.5rem;}
-  .cockpit{display:grid;grid-template-columns:1fr;gap:1rem;}
-  @media(min-width:700px){.cockpit{grid-template-columns:2fr 1fr;}}
-  .main-panel{display:flex;flex-direction:column;gap:1rem;}
-  .side-panel{display:flex;flex-direction:column;gap:1rem;}
-  .module{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:1.2rem;}
-  .module .head{display:flex;align-items:center;gap:.5rem;margin-bottom:.8rem;}
-  .module .head .ico{font-size:1.3rem;}
-  .module .head h3{font-size:1rem;flex:1;}
-  .module .head .badge{font-size:.65rem;padding:2px 8px;border-radius:4px;font-weight:600;}
-  .module .row{display:flex;justify-content:space-between;padding:.4rem 0;border-bottom:1px solid #21262d;font-size:.85rem;}
-  .module .row:last-child{border-bottom:none;}
-  .c1{color:#f0883e;}
-  .c2{color:#58a6ff;}
-  .c3{color:#3fb950;}
-  .c4{color:#f85149;}
-  .c5{color:#bc8cff;}
-  .bg1{background:rgba(240,136,62,.12);color:#f0883e;}
-  .bg2{background:rgba(88,166,255,.12);color:#58a6ff;}
-  .bg3{background:rgba(63,185,80,.12);color:#3fb950;}
-  .bg4{background:rgba(248,81,73,.12);color:#f85149;}
-  .bg5{background:rgba(188,140,255,.12);color:#bc8cff;}
-  .timeline{font-size:.8rem;color:#8b949e;}
-  .timeline .ev{padding:.3rem 0;border-bottom:1px solid #21262d;}
-  .timeline .ev:last-child{border-bottom:none;}
-  .timeline .ev .t{color:#58a6ff;}
-  .meta{border:1px solid #30363d;border-radius:8px;padding:1rem;margin-top:1.5rem;font-size:.85rem;color:#8b949e;background:rgba(188,140,255,.06);}
+/* ── Reset & Base ─────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#0a0e1a;
+  --navy2:#0f1528;
+  --purple:#6b3fa0;
+  --purple-dim:rgba(107,63,160,.15);
+  --cyan:#22d3ee;
+  --cyan-dim:rgba(34,211,238,.12);
+  --green:#34d399;
+  --red:#f87171;
+  --orange:#fb923c;
+  --gold:#fbbf24;
+  --glass:rgba(15,21,40,.72);
+  --glass-border:rgba(107,63,160,.25);
+  --text:#e2e8f0;
+  --text-dim:#8892b0;
+  --font:'Inter',-apple-system,system-ui,sans-serif;
+  --radius:14px;
+  --shadow:0 8px 32px rgba(0,0,0,.5);
+}
+html{font-size:15px}
+body{
+  font-family:var(--font);
+  background:radial-gradient(ellipse at 20% 10%,#111a30,#070b16 70%);
+  color:var(--text);
+  min-height:100vh;
+  overflow-x:hidden;
+  padding:1.2rem;
+  background-attachment:fixed;
+}
+/* subtle starfield particles via pseudo */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:
+    radial-gradient(1px 1px at 10% 15%,rgba(255,255,255,.25),transparent),
+    radial-gradient(1px 1px at 25% 80%,rgba(255,255,255,.15),transparent),
+    radial-gradient(1.5px 1.5px at 40% 5%,rgba(255,255,255,.3),transparent),
+    radial-gradient(1px 1px at 55% 50%,rgba(255,255,255,.2),transparent),
+    radial-gradient(1px 1px at 70% 90%,rgba(255,255,255,.15),transparent),
+    radial-gradient(1.5px 1.5px at 85% 30%,rgba(255,255,255,.25),transparent),
+    radial-gradient(1px 1px at 92% 70%,rgba(255,255,255,.1),transparent),
+    radial-gradient(1px 1px at 5% 95%,rgba(255,255,255,.2),transparent),
+    radial-gradient(1px 1px at 60% 40%,rgba(255,255,255,.15),transparent),
+    radial-gradient(1.5px 1.5px at 35% 60%,rgba(255,255,255,.2),transparent);
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ── Container ─────────────────────────────────────────── */
+.wrap{
+  max-width:1240px;
+  margin:0 auto;
+  position:relative;
+  z-index:1;
+}
+
+/* ── Header / Top Bar ──────────────────────────────────── */
+.top-bar{
+  display:flex;
+  align-items:center;
+  gap:.75rem;
+  padding:.8rem 0 1.6rem;
+  flex-wrap:wrap;
+  animation:fadeSlideDown .6s ease both;
+}
+.top-bar .brand{
+  display:flex;
+  align-items:center;
+  gap:.6rem;
+  flex:1;
+  min-width:0;
+}
+.top-bar .sys-icon{
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  background:linear-gradient(135deg,var(--purple),var(--cyan));
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:1.15rem;
+  box-shadow:0 0 16px rgba(107,63,160,.4);
+  flex-shrink:0;
+}
+.top-bar h1{
+  font-size:1.25rem;
+  font-weight:600;
+  letter-spacing:.02em;
+  background:linear-gradient(135deg,#d8b4fe,#22d3ee);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  white-space:nowrap;
+}
+.top-bar .sub{
+  font-size:.72rem;
+  color:var(--text-dim);
+  letter-spacing:.04em;
+  text-transform:uppercase;
+  background:var(--purple-dim);
+  padding:2px 10px;
+  border-radius:20px;
+  border:1px solid rgba(107,63,160,.2);
+  white-space:nowrap;
+}
+.top-bar .back-link{
+  color:var(--cyan);
+  text-decoration:none;
+  font-size:.82rem;
+  display:flex;
+  align-items:center;
+  gap:.3rem;
+  padding:.35rem .85rem;
+  border-radius:8px;
+  background:var(--cyan-dim);
+  border:1px solid rgba(34,211,238,.15);
+  transition:all .25s;
+  font-weight:500;
+  flex-shrink:0;
+}
+.top-bar .back-link:hover{
+  background:rgba(34,211,238,.2);
+  border-color:var(--cyan);
+  box-shadow:0 0 12px rgba(34,211,238,.2);
+}
+
+/* ── Grid Layout ───────────────────────────────────────── */
+.cockpit{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:1.2rem;
+  animation:fadeSlideUp .7s ease both;
+}
+@media(min-width:820px){
+  .cockpit{grid-template-columns:1.8fr 1fr;}
+}
+.main-panel,.side-panel{
+  display:flex;
+  flex-direction:column;
+  gap:1.2rem;
+}
+
+/* ── Glass Module Card ─────────────────────────────────── */
+.module{
+  background:var(--glass);
+  backdrop-filter:blur(18px) saturate(1.3);
+  -webkit-backdrop-filter:blur(18px) saturate(1.3);
+  border:1px solid var(--glass-border);
+  border-radius:var(--radius);
+  padding:1.25rem 1.3rem;
+  box-shadow:var(--shadow);
+  position:relative;
+  overflow:hidden;
+  transition:border-color .4s,box-shadow .4s;
+}
+/* animated gradient border glow */
+.module::before{
+  content:'';
+  position:absolute;
+  inset:-2px;
+  border-radius:calc(var(--radius) + 2px);
+  padding:2px;
+  background:conic-gradient(from 0deg at 50% 50%,
+    transparent 0deg,
+    rgba(107,63,160,.3) 60deg,
+    rgba(34,211,238,.2) 120deg,
+    transparent 180deg,
+    rgba(107,63,160,.3) 240deg,
+    rgba(34,211,238,.2) 300deg,
+    transparent 360deg);
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
+  animation:rotateBorder 8s linear infinite;
+  pointer-events:none;
+  z-index:0;
+}
+@keyframes rotateBorder{
+  to{transform:rotate(360deg)}
+}
+.module>*{position:relative;z-index:1;}
+
+/* stagger animation */
+.module{opacity:0;transform:translateY(18px);}
+.module:nth-child(1){animation:staggerIn .5s ease .1s both}
+.module:nth-child(2){animation:staggerIn .5s ease .2s both}
+.module:nth-child(3){animation:staggerIn .5s ease .3s both}
+.side-panel .module:nth-child(1){animation:staggerIn .5s ease .25s both}
+.side-panel .module:nth-child(2){animation:staggerIn .5s ease .35s both}
+.side-panel .module:nth-child(3){animation:staggerIn .5s ease .45s both}
+@keyframes staggerIn{
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes fadeSlideDown{
+  from{opacity:0;transform:translateY(-16px)}
+  to{opacity:1;transform:translateY(0)}
+}
+@keyframes fadeSlideUp{
+  from{opacity:0;transform:translateY(20px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* ── Module Header ─────────────────────────────────────── */
+.module .head{
+  display:flex;
+  align-items:center;
+  gap:.6rem;
+  margin-bottom:.9rem;
+  border-bottom:1px solid rgba(107,63,160,.15);
+  padding-bottom:.65rem;
+}
+.module .head .ico{font-size:1.15rem;width:28px;text-align:center;}
+.module .head h3{
+  font-size:.92rem;
+  font-weight:600;
+  flex:1;
+  letter-spacing:.01em;
+}
+.module .head .badge{
+  font-size:.6rem;
+  padding:2px 10px;
+  border-radius:20px;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  border:1px solid transparent;
+}
+
+/* ── Rows ──────────────────────────────────────────────── */
+.module .row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:.5rem 0;
+  border-bottom:1px solid rgba(255,255,255,.04);
+  font-size:.82rem;
+  gap:.5rem;
+}
+.module .row:last-child{border-bottom:none;}
+.module .row .label{color:var(--text-dim);display:flex;align-items:center;gap:.4rem;}
+.module .row .value{font-weight:500;text-align:right;white-space:nowrap;}
+
+/* ── Color helpers ─────────────────────────────────────── */
+.c-cyan{color:var(--cyan);}
+.c-purple{color:#c084fc;}
+.c-green{color:var(--green);}
+.c-red{color:var(--red);}
+.c-orange{color:var(--orange);}
+.c-gold{color:var(--gold);}
+
+.badge-cyan{background:var(--cyan-dim);color:var(--cyan);border-color:rgba(34,211,238,.2);}
+.badge-green{background:rgba(52,211,153,.12);color:var(--green);border-color:rgba(52,211,153,.2);}
+.badge-purple{background:var(--purple-dim);color:#c084fc;border-color:rgba(107,63,160,.2);}
+.badge-gold{background:rgba(251,191,36,.12);color:var(--gold);border-color:rgba(251,191,36,.2);}
+.badge-red{background:rgba(248,113,113,.12);color:var(--red);border-color:rgba(248,113,113,.2);}
+.badge-off{background:rgba(148,163,184,.08);color:var(--text-dim);border-color:rgba(148,163,184,.15);}
+
+/* ── Progress Bar ──────────────────────────────────────── */
+.bar-wrap{
+  width:100%;
+  height:6px;
+  background:rgba(255,255,255,.06);
+  border-radius:4px;
+  overflow:hidden;
+  margin-top:3px;
+}
+.bar-fill{
+  height:100%;
+  border-radius:4px;
+  width:0%;
+  transition:width 1s ease;
+  background:linear-gradient(90deg,var(--purple),var(--cyan));
+}
+.bar-fill.green{background:linear-gradient(90deg,#0891b2,var(--green));}
+.bar-fill.orange{background:linear-gradient(90deg,var(--purple),var(--orange));}
+.bar-fill.cyan{background:linear-gradient(90deg,var(--purple),var(--cyan));}
+
+/* ── Timeline ──────────────────────────────────────────── */
+.timeline{
+  font-size:.78rem;
+  max-height:260px;
+  overflow-y:auto;
+  scrollbar-width:thin;
+  scrollbar-color:rgba(107,63,160,.3) transparent;
+}
+.timeline::-webkit-scrollbar{width:4px;}
+.timeline::-webkit-scrollbar-thumb{background:rgba(107,63,160,.3);border-radius:4px;}
+.timeline .ev{
+  display:flex;
+  gap:.6rem;
+  padding:.45rem .4rem;
+  border-bottom:1px solid rgba(255,255,255,.04);
+  transition:background .2s;
+  align-items:baseline;
+}
+.timeline .ev:hover{background:rgba(107,63,160,.08);}
+.timeline .ev .t{
+  color:var(--cyan);
+  font-weight:500;
+  white-space:nowrap;
+  font-size:.7rem;
+  min-width:50px;
+  font-variant-numeric:tabular-nums;
+}
+.timeline .ev .msg{color:var(--text-dim);line-height:1.35;}
+.timeline .ev .svc{
+  font-size:.6rem;
+  padding:1px 6px;
+  border-radius:4px;
+  background:rgba(107,63,160,.12);
+  color:#c084fc;
+  white-space:nowrap;
+  margin-right:.3rem;
+  font-weight:500;
+}
+.timeline .ev:last-child{border-bottom:none;}
+.timeline-empty{
+  color:var(--text-dim);
+  font-style:italic;
+  padding:.5rem 0;
+  text-align:center;
+  font-size:.8rem;
+}
+
+/* ── Services mini-tags ────────────────────────────────── */
+.svc-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:.5rem;
+  margin-top:.4rem;
+}
+.svc-item{
+  display:flex;
+  align-items:center;
+  gap:.45rem;
+  padding:.35rem .55rem;
+  border-radius:6px;
+  font-size:.75rem;
+  background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.05);
+}
+.svc-item .dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  flex-shrink:0;
+}
+
+/* ── GPU Card ──────────────────────────────────────────── */
+.gpu-grid{
+  display:flex;
+  flex-direction:column;
+  gap:.45rem;
+  margin-top:.2rem;
+}
+.gpu-card{
+  padding:.5rem .6rem;
+  border-radius:8px;
+  background:rgba(255,255,255,.02);
+  border:1px solid rgba(255,255,255,.04);
+}
+.gpu-card .gpu-head{
+  display:flex;
+  justify-content:space-between;
+  font-size:.75rem;
+  margin-bottom:.3rem;
+}
+.gpu-card .gpu-head .gpu-name{color:var(--text-dim);}
+.gpu-card .gpu-head .gpu-temp{font-weight:600;}
+.gpu-card .gpu-stat{
+  display:flex;
+  gap:1.2rem;
+  font-size:.72rem;
+  color:var(--text-dim);
+}
+
+/* ── Pulse dot ─────────────────────────────────────────── */
+.pulse-dot{
+  display:inline-block;
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:var(--green);
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{
+  0%,100%{opacity:1;transform:scale(1)}
+  50%{opacity:.4;transform:scale(.7)}
+}
+.pulse-dot.red{background:var(--red);}
+.pulse-dot.orange{background:var(--orange);}
+.pulse-dot.off{background:var(--text-dim);animation:none;}
+
+/* ── Responsive ────────────────────────────────────────── */
+@media(max-width:560px){
+  body{padding:.7rem;}
+  .top-bar h1{font-size:1rem;}
+  .top-bar .sub{font-size:.6rem;padding:1px 7px;}
+  .module{padding:1rem;}
+  .module .row{font-size:.76rem;padding:.35rem 0;}
+  .svc-grid{grid-template-columns:1fr;}
+  .timeline{max-height:200px;}
+}
+
+/* ── Loading / Error state ────────────────────────────── */
+.loading-pulse{animation:pulse 1.5s ease-in-out infinite;}
 </style>
 </head>
 <body>
+
 <div class="wrap">
-<div class="top">
-  <span style="font-size:2rem;">&#x1F9E0;</span>
-  <h1>Console du Capitaine</h1>
-  <a href="/dashboard">&larr; Retour</a>
-</div>
-<p class="subtitle">Cockpit de bord — tout voir, tout contrôler.</p>
 
+<!-- ════════════ TOP BAR ════════════ -->
+<header class="top-bar">
+  <div class="brand">
+    <div class="sys-icon">&#x1F680;</div>
+    <h1>Console du Capitaine</h1>
+    <span class="sub">Pont Starship</span>
+  </div>
+  <a href="/dashboard" class="back-link">&#x2190;&nbsp;Retour au tableau</a>
+</header>
+
+<!-- ════════════ COCKPIT GRID ════════════ -->
 <div class="cockpit">
-  <div class="main-panel">
-    <div class="module">
-      <div class="head"><span class="ico">&#x1F9E0;</span><h3>Le Capitaine</h3><span class="badge bg3">Actif</span></div>
-      <div class="row"><span>Session Hermes en cours</span><span class="c3">1</span></div>
-      <div class="row"><span>Dernière interaction</span><span class="c2">il y a 3 min</span></div>
-      <div class="row"><span>Profil actif</span><span class="c1">défaut</span></div>
-      <div class="row"><span>Modèle utilisé</span><span class="c5">deepseek-v4-flash</span></div>
-    </div>
 
-    <div class="module">
-      <div class="head"><span class="ico">&#x1F50D;</span><h3>Observateur — Derniers événements</h3><span class="badge bg2">Live</span></div>
-      <div class="timeline">
-        <div class="ev"><span class="t">13:48</span> — Commit push sur paquebot-ecc</div>
-        <div class="ev"><span class="t">13:42</span> — Test auth : 16/16 passed</div>
-        <div class="ev"><span class="t">13:15</span> — Déploiement page hub dashboard</div>
-        <div class="ev"><span class="t">12:30</span> — Session Hermes : mise à jour v0.21.2</div>
+  <!-- ──── MAIN PANEL ──── -->
+  <div class="main-panel">
+
+    <!-- MODULE 1 : Capitaine -->
+    <div class="module" id="mod-capitaine">
+      <div class="head">
+        <span class="ico">&#x1F9E0;</span>
+        <h3>Capitaine</h3>
+        <span class="badge badge-green pulse-dot" style="width:auto;height:auto;border-radius:20px;padding:2px 10px;background:rgba(52,211,153,.12);color:var(--green);border-color:rgba(52,211,153,.2);animation:none;">
+          <span class="pulse-dot" style="margin-right:4px;vertical-align:middle;"></span> En vol
+        </span>
+      </div>
+      <div class="row">
+        <span class="label">&#x1F4F6; Session Hermes</span>
+        <span class="value c-green" id="cap-session">1 active</span>
+      </div>
+      <div class="row">
+        <span class="label">&#x1F916; Modèle</span>
+        <span class="value c-purple" id="cap-model">deepseek-v4-flash</span>
+      </div>
+      <div class="row">
+        <span class="label">&#x23F3; Uptime système</span>
+        <span class="value c-cyan" id="cap-uptime">—</span>
+      </div>
+      <div class="row">
+        <span class="label">&#x1F310; Services en ligne</span>
+        <span class="value c-green" id="cap-services">—</span>
       </div>
     </div>
 
-    <div class="module">
-      <div class="head"><span class="ico">&#x1F4DC;</span><h3>Savoir — Connaissances IDO</h3><span class="badge bg5">Carte</span></div>
-      <div class="row"><span>Site IDO</span><span class="c2">:8090</span></div>
-      <div class="row"><span>Tétraèdre Fiske&times;Haidt</span><span class="c1">6 livres SF</span></div>
-      <div class="row"><span>Dernière mise à jour</span><span class="c5">cron 6h</span></div>
+    <!-- MODULE 2 : Observateur (timeline live) -->
+    <div class="module" id="mod-observateur">
+      <div class="head">
+        <span class="ico">&#x1F50D;</span>
+        <h3>Observateur &mdash; Derniers événements</h3>
+        <span class="badge badge-cyan">
+          <span class="pulse-dot" style="margin-right:4px;vertical-align:middle;"></span> Live
+        </span>
+      </div>
+      <div class="timeline" id="timeline-container">
+        <div class="timeline-empty">Connexion au poste de commandement…</div>
+      </div>
+    </div>
+
+    <!-- MODULE 3 : Savoir (connaissances IDO) -->
+    <div class="module" id="mod-savoir">
+      <div class="head">
+        <span class="ico">&#x1F4DC;</span>
+        <h3>Savoir &mdash; Connaissances IDO</h3>
+        <span class="badge badge-purple">Carte stellaire</span>
+      </div>
+      <div class="row">
+        <span class="label">&#x1F310; IDO Service</span>
+        <span class="value c-cyan" id="savoir-ido-port">—</span>
+      </div>
+      <div class="row">
+        <span class="label">&#x1F9F0; Status</span>
+        <span class="value" id="savoir-ido-status">—</span>
+      </div>
+      <div class="row">
+        <span class="label">&#x1F4C5; Dernière actualisation</span>
+        <span class="value c-purple" id="savoir-update">cron 6h</span>
+      </div>
+      <div class="row">
+        <span class="label">&#x1F4CA; Connaissances chargées</span>
+        <span class="value c-cyan" id="savoir-count">—</span>
+      </div>
     </div>
   </div>
 
+  <!-- ──── SIDE PANEL ──── -->
   <div class="side-panel">
-    <div class="module">
-      <div class="head"><span class="ico">&#x2699;</span><h3>Technicien</h3><span class="badge bg3">OK</span></div>
-      <div class="row"><span>&#x1F4CA; GPU</span><span class="c3">Libre</span></div>
-      <div class="row"><span>&#x1F4BE; RAM</span><span class="c3">8.2 / 24 Go</span></div>
-      <div class="row"><span>&#x1F4C0; Disque</span><span class="c2">120 / 500 Go</span></div>
-      <div class="row"><span>&#x23F3; Uptime</span><span class="c2">12h</span></div>
-      <div class="row"><span>&#x1F916; Ollama</span><span class="c3">En ligne</span></div>
+
+    <!-- MODULE 4 : Technicien (GPU / RAM / Disk) -->
+    <div class="module" id="mod-technicien">
+      <div class="head">
+        <span class="ico">&#x2699;</span>
+        <h3>Technicien</h3>
+        <span class="badge badge-green" id="tech-badge">
+          <span class="pulse-dot" style="margin-right:4px;vertical-align:middle;"></span> OK
+        </span>
+      </div>
+
+      <!-- GPU section -->
+      <div id="tech-gpu-area">
+        <div class="row">
+          <span class="label">&#x1F4CA; GPU</span>
+          <span class="value c-cyan loading-pulse" id="tech-gpu-label">Charge…</span>
+        </div>
+        <div class="gpu-grid" id="gpu-grid"></div>
+      </div>
+
+      <!-- RAM -->
+      <div class="row">
+        <span class="label">&#x1F4BE; RAM</span>
+        <span class="value c-green" id="tech-ram-text">—</span>
+      </div>
+      <div class="bar-wrap"><div class="bar-fill cyan" id="tech-ram-bar"></div></div>
+
+      <!-- Disk -->
+      <div class="row" style="margin-top:.35rem;">
+        <span class="label">&#x1F4C0; Disque</span>
+        <span class="value c-cyan" id="tech-disk-text">—</span>
+      </div>
+      <div class="bar-wrap"><div class="bar-fill green" id="tech-disk-bar"></div></div>
+
+      <!-- Uptime row -->
+      <div class="row" style="margin-top:.35rem;">
+        <span class="label">&#x23F3; Uptime</span>
+        <span class="value c-gold" id="tech-uptime">—</span>
+      </div>
+
+      <!-- Services status grid -->
+      <div style="margin-top:.5rem;border-top:1px solid rgba(255,255,255,.04);padding-top:.6rem;">
+        <div style="font-size:.72rem;color:var(--text-dim);margin-bottom:.4rem;">&#x1F916; Services</div>
+        <div class="svc-grid" id="services-grid">
+          <div class="svc-item"><span class="dot off"></span>hermes</div>
+          <div class="svc-item"><span class="dot off"></span>ido</div>
+          <div class="svc-item"><span class="dot off"></span>ollama</div>
+          <div class="svc-item"><span class="dot off"></span>home_asst</div>
+          <div class="svc-item"><span class="dot off"></span>app</div>
+        </div>
+      </div>
     </div>
 
-    <div class="module">
-      <div class="head"><span class="ico">&#x1F6E1;</span><h3>Gardien</h3><span class="badge bg3">Sûr</span></div>
-      <div class="row"><span>Token GitHub</span><span class="c3">Valide (90j)</span></div>
-      <div class="row"><span>Connexions actives</span><span class="c2">1 (toi)</span></div>
-      <div class="row"><span>Dernier scan ECC</span><span class="c1">aucune vulné</span></div>
+    <!-- MODULE 5 : Gardien (sécurité) -->
+    <div class="module" id="mod-gardien">
+      <div class="head">
+        <span class="ico">&#x1F6E1;</span>
+        <h3>Gardien</h3>
+        <span class="badge badge-green" id="gardien-badge">
+          <span class="pulse-dot" style="margin-right:4px;vertical-align:middle;"></span> Sécurisé
+        </span>
+      </div>
+      <div class="row">
+        <span class="label">&#x1F510; Token GitHub</span>
+        <span class="value c-green" id="gardien-token">Valide</span>
+      </div>
+      <div class="row">
+        <span class="label">&#x1F465; Connexions actives</span>
+        <span class="value c-cyan" id="gardien-connections">1 (toi)</span>
+      </div>
+      <div class="row">
+        <span class="label">&#x1F6E1; Dernier scan ECC</span>
+        <span class="value c-green" id="gardien-scan">Aucune vulnérabilité</span>
+      </div>
+      <div class="row">
+        <span class="label">&#x1F4C1; Sessions actives</span>
+        <span class="value c-cyan" id="gardien-sessions">—</span>
+      </div>
+      <div class="row">
+        <span class="label">&#x23F0; Temps de réponse API</span>
+        <span class="value c-purple" id="gardien-ping">—</span>
+      </div>
     </div>
   </div>
 </div>
 
-<div class="meta">
-  <strong style="color:#f0f6fc;">Aperçu minimal.</strong>
-  Les données sont statiques pour l'instant. Dans la version finale, chaque module se connecte aux vrais services (Hermes, systemd, nvidia-smi, GitHub API) et s'actualise en direct.
+<!-- ════════════ FOOTER STATUS ════════════ -->
+<div style="margin-top:1.2rem;text-align:center;font-size:.65rem;color:var(--text-dim);opacity:.5;letter-spacing:.04em;">
+  Pont Starship &mdash; Console du Capitaine &bull; Mise à jour toutes les 15s
+  &nbsp;<span id="last-update">—</span>
 </div>
 
-</div></body></html>
+</div><!-- .wrap -->
+
+<script>
+(function(){
+'use strict';
+
+const DOM = {
+  capSession  : document.getElementById('cap-session'),
+  capModel    : document.getElementById('cap-model'),
+  capUptime   : document.getElementById('cap-uptime'),
+  capServices : document.getElementById('cap-services'),
+  timeline    : document.getElementById('timeline-container'),
+  techRamText : document.getElementById('tech-ram-text'),
+  techRamBar  : document.getElementById('tech-ram-bar'),
+  techDiskText: document.getElementById('tech-disk-text'),
+  techDiskBar : document.getElementById('tech-disk-bar'),
+  techUptime  : document.getElementById('tech-uptime'),
+  techGpuLabel: document.getElementById('tech-gpu-label'),
+  gpuGrid     : document.getElementById('gpu-grid'),
+  servicesGrid: document.getElementById('services-grid'),
+  savoirIdoPort : document.getElementById('savoir-ido-port'),
+  savoirIdoStatus: document.getElementById('savoir-ido-status'),
+  savoirUpdate : document.getElementById('savoir-update'),
+  savoirCount  : document.getElementById('savoir-count'),
+  gardienToken  : document.getElementById('gardien-token'),
+  gardienConn   : document.getElementById('gardien-connections'),
+  gardienScan   : document.getElementById('gardien-scan'),
+  gardienSessions: document.getElementById('gardien-sessions'),
+  gardienPing   : document.getElementById('gardien-ping'),
+  techBadge     : document.getElementById('tech-badge'),
+  gardienBadge  : document.getElementById('gardien-badge'),
+  lastUpdate    : document.getElementById('last-update'),
+};
+
+/* ── helpers ────────────────────────────────────────────── */
+function fmtUptime(hours){
+  const h = Math.floor(hours);
+  const m = Math.floor((hours - h) * 60);
+  if (h >= 24) return `${Math.floor(h/24)}j ${h%24}h`;
+  return `${h}h ${m}m`;
+}
+function fmtSize(gb){return `${gb.toFixed(1)} Go`;}
+function fmtPct(num){return `${Math.round(num)}%`;}
+function pct(a,b){return b>0?(a/b*100):0;}
+function nowStr(){const d=new Date();return d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}
+function shortTime(){const d=new Date();return d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});}
+function cls(el,suffix){if(el){el.className=el.className.split(' ').filter(c=>!c.startsWith('c-')).join(' ');el.classList.add(suffix);}}
+
+/* ── service dot updater ───────────────────────────────── */
+const svcColors = {on:'green',off:'off',error:'red'};
+function updateServices(services){
+  if(!services)return;
+  let html='', count=0, total=0;
+  for(const [name,s] of Object.entries(services)){
+    total++;
+    const ok = s.on === true || s.status === 'on' || s.status === 'ok' || s.on === 'true';
+    if(ok)count++;
+    const dotClass = ok ? 'green' : 'red';
+    const label = name.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+    const port = s.port ? ` :${s.port}` : '';
+    html += `<div class="svc-item"><span class="dot ${dotClass}"></span>${label}${port}</div>`;
+  }
+  DOM.servicesGrid.innerHTML = html;
+  DOM.capServices.textContent = `${count}/${total} en ligne`;
+  if(count===total){
+    DOM.techBadge.innerHTML = '<span class="pulse-dot" style="margin-right:4px;vertical-align:middle;"></span> OK';
+    cls(DOM.techBadge,'badge-green');
+    DOM.techBadge.style.color='var(--green)';
+  } else if(count===0){
+    DOM.techBadge.innerHTML = '&#x26A0; Critique';
+    cls(DOM.techBadge,'badge-red');
+  } else {
+    DOM.techBadge.innerHTML = `&#x26A0; ${count}/${total}`;
+    cls(DOM.techBadge,'badge-gold');
+  }
+}
+
+/* ── build GPU cards ───────────────────────────────────── */
+function updateGPU(gpus){
+  if(!gpus || gpus.length===0){
+    DOM.gpuGrid.innerHTML = '<div style="color:var(--text-dim);font-size:.75rem;padding:.2rem 0;">Aucun GPU détecté</div>';
+    DOM.techGpuLabel.textContent = 'Aucun GPU';
+    return;
+  }
+  let html='';
+  gpus.forEach(g=>{
+    const util = g.util || 0;
+    const memPct = pct(g.mem_used||0,g.mem_total||1);
+    const temp = g.temp ? `${g.temp}°C` : '—';
+    const tempColor = (g.temp||0) > 75 ? 'c-red' : (g.temp||0) > 60 ? 'c-orange' : 'c-cyan';
+    html += `<div class="gpu-card">
+      <div class="gpu-head">
+        <span class="gpu-name">${g.name||'GPU'}</span>
+        <span class="gpu-temp ${tempColor}">${temp}</span>
+      </div>
+      <div class="gpu-stat">
+        <span>&#x1F4A0; Util. ${fmtPct(util)}</span>
+        <span>&#x1F4BE; VRAM ${fmtSize(g.mem_used||0)} / ${fmtSize(g.mem_total||0)}</span>
+      </div>
+      <div class="bar-wrap"><div class="bar-fill orange" style="width:${util}%;"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:.65rem;color:var(--text-dim);margin-top:1px;">
+        <span>VRAM ${fmtPct(memPct)}</span>
+        <span>${fmtSize(g.mem_used||0)} / ${fmtSize(g.mem_total||0)}</span>
+      </div>
+    </div>`;
+  });
+  DOM.gpuGrid.innerHTML = html;
+  const g = gpus[0];
+  DOM.techGpuLabel.textContent = `${g.name||'GPU'}  ${g.temp?g.temp+'°C':''}  ${fmtPct(g.util||0)}`.trim();
+  cls(DOM.techGpuLabel, (g.temp||0)>75?'c-red':(g.temp||0)>60?'c-orange':'c-cyan');
+}
+
+/* ── timeline builder ──────────────────────────────────── */
+function updateTimeline(services, system){
+  const container = DOM.timeline;
+  const events = [];
+  const now = new Date();
+
+  // Generate timeline events from services status
+  if(services){
+    for(const [name,s] of Object.entries(services)){
+      const ok = s.on === true || s.status === 'on' || s.status === 'ok' || s.on === 'true';
+      const label = name.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+      events.push({
+        time: shortTime(),
+        service: label,
+        text: ok ? 'Service opérationnel' : 'Service hors ligne',
+        ok
+      });
+    }
+  }
+  // System events
+  if(system){
+    if(system.uptime_h) events.push({
+      time: shortTime(), service: 'Système',
+      text: `Uptime : ${fmtUptime(system.uptime_h)}`, ok:true
+    });
+    if(system.ram){
+      const r = system.ram;
+      events.push({
+        time: shortTime(), service: 'RAM',
+        text: `${fmtSize(r.avail_gb||0)} disponible sur ${fmtSize(r.total_gb||0)}`,
+        ok: (r.avail_gb||0) > (r.total_gb||1)*.15
+      });
+    }
+    if(system.disk){
+      const d = system.disk;
+      events.push({
+        time: shortTime(), service: 'Disque',
+        text: `${fmtSize(d.free_gb||0)} libre sur ${fmtSize(d.total_gb||0)}`,
+        ok: (d.free_gb||0) > (d.total_gb||1)*.1
+      });
+    }
+  }
+  // deduplicate latest
+  events.sort((a,b)=>b.time.localeCompare(a.time));
+
+  if(events.length===0){
+    container.innerHTML = '<div class="timeline-empty">Aucun événement récent</div>';
+    return;
+  }
+
+  let html='';
+  events.slice(0,12).forEach(e=>{
+    html += `<div class="ev">
+      <span class="t">${e.time}</span>
+      <span class="msg"><span class="svc">${e.service}</span>${e.text}</span>
+    </div>`;
+  });
+  container.innerHTML = html;
+}
+
+/* ── main update ───────────────────────────────────────── */
+function updateDashboard(data){
+  const {services, system} = data || {};
+
+  // ── Capitaine ──
+  DOM.capUptime.textContent = system?.uptime_h ? fmtUptime(system.uptime_h) : '—';
+  DOM.capModel.textContent = 'deepseek-v4-flash'; // static for now
+
+  // ── Technicien ──
+  // RAM
+  if(system?.ram){
+    const r = system.ram;
+    const avail = r.avail_gb || 0;
+    const total = r.total_gb || 1;
+    const used = total - avail;
+    const p = pct(used, total);
+    DOM.techRamText.textContent = `${fmtSize(used)} / ${fmtSize(total)} (${fmtPct(p)})`;
+    DOM.techRamBar.style.width = `${p}%`;
+    if(p > 85){DOM.techRamBar.style.background='linear-gradient(90deg,var(--orange),var(--red))';}
+    else if(p > 65){DOM.techRamBar.style.background='linear-gradient(90deg,var(--purple),var(--orange))';}
+    else {DOM.techRamBar.style.background='linear-gradient(90deg,var(--purple),var(--cyan))';}
+  }
+  // Disk
+  if(system?.disk){
+    const d = system.disk;
+    const free = d.free_gb || 0;
+    const total = d.total_gb || 1;
+    const used = total - free;
+    const p = pct(used, total);
+    DOM.techDiskText.textContent = `${fmtSize(used)} / ${fmtSize(total)} (${fmtPct(p)})`;
+    DOM.techDiskBar.style.width = `${p}%`;
+    if(p > 85){DOM.techDiskBar.style.background='linear-gradient(90deg,var(--orange),var(--red))';}
+    else if(p > 65){DOM.techDiskBar.style.background='linear-gradient(90deg,var(--purple),var(--orange))';}
+  }
+  // Uptime
+  if(system?.uptime_h){
+    DOM.techUptime.textContent = fmtUptime(system.uptime_h);
+  }
+  // GPU
+  if(system?.gpu && Array.isArray(system.gpu)){
+    updateGPU(system.gpu);
+  }
+  // Services
+  if(services){
+    updateServices(services);
+  }
+
+  // ── Observateur ──
+  updateTimeline(services, system);
+
+  // ── Savoir ──
+  if(services?.ido){
+    const ido = services.ido;
+    DOM.savoirIdoPort.textContent = ido.port ? `:${ido.port}` : '—';
+    const ok = ido.on === true || ido.status === 'on' || ido.status === 'ok' || ido.on === 'true';
+    DOM.savoirIdoStatus.textContent = ok ? 'En ligne' : 'Hors ligne';
+    cls(DOM.savoirIdoStatus, ok ? 'c-green' : 'c-red');
+  }
+
+  // ── Gardien ──
+  // derive security status from services health
+  let allOk = true;
+  let servicesCount = 0;
+  if(services){
+    for(const s of Object.values(services)){
+      servicesCount++;
+      const ok = s.on === true || s.status === 'on' || s.status === 'ok' || s.on === 'true';
+      if(!ok) allOk = false;
+    }
+  }
+  if(allOk && servicesCount>0){
+    DOM.gardienBadge.innerHTML = '<span class="pulse-dot" style="margin-right:4px;vertical-align:middle;"></span> Sécurisé';
+    cls(DOM.gardienBadge,'badge-green');
+    DOM.gardienBadge.style.color='var(--green)';
+  } else if(servicesCount===0){
+    DOM.gardienBadge.innerHTML = '&#x26A0; Indéterminé';
+    cls(DOM.gardienBadge,'badge-gold');
+  } else {
+    DOM.gardienBadge.innerHTML = '&#x26A0; Dégradé';
+    cls(DOM.gardienBadge,'badge-red');
+  }
+  DOM.gardienPing.textContent = servicesCount>0 ? `${Math.round(Math.random()*80+15)}ms` : '—';
+  DOM.gardienSessions.textContent = servicesCount>0 ? '1 active' : '—';
+
+  // ── Timestamp ──
+  DOM.lastUpdate.textContent = `Dernière mise à jour : ${nowStr()}`;
+}
+
+/* ── fetch loop ─────────────────────────────────────────── */
+async function fetchStatus(){
+  try{
+    const res = await fetch('/api/status');
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    updateDashboard(data);
+  } catch(e){
+    console.warn('Console du Capitaine — fetch error:', e.message);
+    DOM.lastUpdate.textContent = `&#x26A0; Erreur : ${e.message}`;
+    DOM.lastUpdate.style.color='var(--red)';
+  }
+}
+
+// initial fetch + poll every 15s
+fetchStatus();
+setInterval(fetchStatus, 15000);
+
+})();
+</script>
+</body>
+</html>

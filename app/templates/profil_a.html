@@ -4,110 +4,356 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bateau-Atelier — Aperçu</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
   *{margin:0;padding:0;box-sizing:border-box;}
-  body{background:#0d1117;color:#c9d1d9;font-family:system-ui,-apple-system,sans-serif;padding:1rem;}
-  .wrap{max-width:900px;margin:0 auto;}
-  .top{display:flex;align-items:center;gap:1rem;padding:1rem 0;flex-wrap:wrap;}
-  .top h1{font-size:1.4rem;flex:1;}
-  .top a{color:#58a6ff;text-decoration:none;font-size:.85rem;}
-  .top a:hover{text-decoration:underline;}
-  .subtitle{color:#8b949e;font-size:.85rem;margin-bottom:1.5rem;}
-  .grid{display:grid;grid-template-columns:1fr;gap:1rem;}
-  @media(min-width:600px){.grid{grid-template-columns:1fr 1fr;}}
-  .card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:1.5rem;}
-  .card .ico{font-size:1.8rem;margin-bottom:.5rem;}
-  .card h3{font-size:1rem;}
-  .card .desc{color:#8b949e;font-size:.85rem;margin:.3rem 0 1rem;}
-  .card ul{list-style:none;font-size:.8rem;color:#8b949e;}
-  .card li{padding:.3rem 0;}
-  .card li::before{content:'▸ ';color:#f0883e;}
-  .badge{display:inline-block;font-size:.65rem;padding:2px 8px;border-radius:4px;margin:0 4px;font-weight:600;}
-  .b1{background:rgba(240,136,62,.15);color:#f0883e;}
-  .b2{background:rgba(88,166,255,.15);color:#58a6ff;}
-  .b3{background:rgba(188,140,255,.15);color:#bc8cff;}
-  .b4{background:rgba(63,185,80,.15);color:#3fb950;}
-  .mini-dash{background:#0d1117;border:1px solid #21262d;border-radius:8px;padding:1rem;margin-top:1rem;font-size:.8rem;}
-  .mini-dash .row{display:flex;justify-content:space-between;padding:.3rem 0;border-bottom:1px solid #21262d;}
-  .mini-dash .row:last-child{border-bottom:none;}
-  .stat{color:#3fb950;}
+  body{
+    background:#0b0e14;
+    color:#e1e7ef;
+    font-family:'Inter',system-ui,-apple-system,sans-serif;
+    padding:1rem;
+    min-height:100vh;
+    position:relative;
+    overflow-x:hidden;
+  }
+  body::before{
+    content:'';
+    position:fixed;
+    inset:0;
+    background:radial-gradient(ellipse 80% 60% at 50% -10%, rgba(99,102,241,.08) 0%, transparent 70%),
+               radial-gradient(ellipse 60% 50% at 80% 100%, rgba(168,85,247,.06) 0%, transparent 60%);
+    pointer-events:none;
+    z-index:0;
+  }
+  .wrap{max-width:960px;margin:0 auto;position:relative;z-index:1;}
+  .top{display:flex;align-items:center;gap:1rem;padding:1.5rem 0 0.5rem;flex-wrap:wrap;}
+  .top h1{font-size:1.5rem;font-weight:600;flex:1;letter-spacing:-0.02em;}
+  .top .back-link{
+    color:#8899b4;text-decoration:none;font-size:.8rem;font-weight:500;
+    display:inline-flex;align-items:center;gap:6px;
+    padding:6px 14px;border-radius:8px;
+    background:rgba(136,153,180,.08);
+    border:1px solid rgba(136,153,180,.12);
+    transition:all .25s ease;
+  }
+  .top .back-link:hover{
+    color:#e1e7ef;
+    background:rgba(136,153,180,.16);
+    border-color:rgba(136,153,180,.25);
+    text-decoration:none;
+  }
+  .subtitle{color:#8899b4;font-size:.85rem;font-weight:400;margin-bottom:1.5rem;padding:0 0.1rem;}
+
+  /* ── Status Bar ── */
+  .status-bar{
+    background:rgba(22,28,40,.75);
+    backdrop-filter:blur(14px) saturate(1.2);
+    -webkit-backdrop-filter:blur(14px) saturate(1.2);
+    border:1px solid rgba(255,255,255,.06);
+    border-radius:14px;
+    padding:0.75rem 1rem;
+    margin-bottom:1.5rem;
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:0.4rem 1rem;
+    font-size:.72rem;
+    position:relative;
+    transition:border-color .3s ease;
+  }
+  .status-bar:hover{border-color:rgba(255,255,255,.12);}
+  .status-label{color:#8899b4;font-weight:500;letter-spacing:.03em;text-transform:uppercase;font-size:.65rem;}
+  .status-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:5px;flex-shrink:0;
+    animation:pulse-dot 2s ease-in-out infinite;}
+  .status-dot.on{background:#3fb950;box-shadow:0 0 8px rgba(63,185,80,.45);}
+  .status-dot.off{background:#f85149;box-shadow:0 0 8px rgba(248,81,73,.35);}
+  .status-dot.loading{background:#d29922;box-shadow:0 0 8px rgba(210,153,34,.3);animation:pulse-dot 1s ease-in-out infinite;}
+  .status-svc{display:inline-flex;align-items:center;padding:3px 10px;border-radius:6px;
+    background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);transition:all .2s;}
+  .status-svc:hover{background:rgba(255,255,255,.07);}
+  .status-svc .svc-name{color:#9aaec9;margin-right:4px;}
+  .status-svc .svc-label{color:#667;}
+
+  @keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.65;transform:scale(.85);}}
+
+  /* ── Status sys info row ── */
+  .sys-info{
+    display:flex;
+    flex-wrap:wrap;
+    gap:0.4rem 0.8rem;
+    margin-left:auto;
+    color:#66778e;
+    font-size:.68rem;
+  }
+  .sys-info span{display:inline-flex;align-items:center;gap:3px;}
+  .sys-info .num{color:#b7c5dd;font-weight:500;}
+  .status-bar .sep{color:#2e384a;user-select:none;}
+
+  /* ── Grid ── */
+  .grid{display:grid;grid-template-columns:1fr;gap:1.25rem;}
+  @media(min-width:640px){.grid{grid-template-columns:1fr 1fr;}}
+
+  /* ── Card ── */
+  .card{
+    position:relative;
+    background:rgba(22,28,40,.6);
+    backdrop-filter:blur(12px) saturate(1.3);
+    -webkit-backdrop-filter:blur(12px) saturate(1.3);
+    border:1px solid rgba(255,255,255,.06);
+    border-radius:16px;
+    padding:1.5rem;
+    transition:all .35s cubic-bezier(.22,.61,.36,1);
+    overflow:hidden;
+    display:flex;
+    flex-direction:column;
+  }
+  .card::before{
+    content:'';
+    position:absolute;
+    top:0;left:0;right:0;
+    height:3px;
+    border-radius:16px 16px 0 0;
+    transition:height .35s ease;
+  }
+  .card:hover::before{height:4px;}
+  .card:hover{
+    background:rgba(30,38,54,.75);
+    border-color:rgba(255,255,255,.14);
+    transform:translateY(-3px);
+    box-shadow:0 12px 40px rgba(0,0,0,.4);
+  }
+
+  /* accent colors */
+  .card.c1::before{background:linear-gradient(90deg,#f59e0b,#fbbf24);}
+  .card.c2::before{background:linear-gradient(90deg,#3b82f6,#60a5fa);}
+  .card.c3::before{background:linear-gradient(90deg,#a855f7,#c084fc);}
+  .card.c4::before{background:linear-gradient(90deg,#22c55e,#4ade80);}
+
+  /* accent glow on hover */
+  .card.c1:hover{box-shadow:0 12px 40px rgba(0,0,0,.4),0 0 0 1px rgba(251,191,36,.15);}
+  .card.c2:hover{box-shadow:0 12px 40px rgba(0,0,0,.4),0 0 0 1px rgba(96,165,250,.15);}
+  .card.c3:hover{box-shadow:0 12px 40px rgba(0,0,0,.4),0 0 0 1px rgba(192,132,252,.15);}
+  .card.c4:hover{box-shadow:0 12px 40px rgba(0,0,0,.4),0 0 0 1px rgba(74,222,128,.15);}
+
+  .card .ico{font-size:1.8rem;margin-bottom:.5rem;line-height:1;}
+  .card h3{font-size:1.05rem;font-weight:600;letter-spacing:-0.01em;margin-bottom:.15rem;}
+  .card .badge{
+    display:inline-block;font-size:.6rem;padding:2px 10px;border-radius:5px;font-weight:600;
+    letter-spacing:.02em;text-transform:uppercase;margin-bottom:.5rem;
+  }
+  .b1{background:rgba(245,158,11,.15);color:#f59e0b;}
+  .b2{background:rgba(59,130,246,.15);color:#60a5fa;}
+  .b3{background:rgba(168,85,247,.15);color:#c084fc;}
+  .b4{background:rgba(34,197,94,.15);color:#4ade80;}
+  .card .desc{color:#8899b4;font-size:.82rem;font-weight:400;margin:.1rem 0 .85rem;line-height:1.5;}
+  .card ul{list-style:none;font-size:.8rem;color:#7a8aa4;flex:1;}
+  .card li{padding:.3rem 0;display:flex;align-items:baseline;}
+  .card li::before{content:'▸ ';color:inherit;opacity:.5;margin-right:2px;}
+
+  /* mini dash inside card */
+  .mini-dash{
+    margin-top:1rem;padding-top:.75rem;
+    border-top:1px solid rgba(255,255,255,.05);
+    font-size:.76rem;
+  }
+  .mini-dash .row{display:flex;justify-content:space-between;padding:.25rem 0;}
+  .mini-dash .row span:first-child{color:#7a8aa4;}
+  .mini-dash .stat{font-weight:500;}
+
+  .card.c1 .stat{color:#f59e0b;}
+  .card.c2 .stat{color:#60a5fa;}
+  .card.c3 .stat{color:#c084fc;}
+  .card.c4 .stat{color:#4ade80;}
+
+  /* footer note */
+  .foot-note{
+    margin-top:1.75rem;
+    background:rgba(255,255,255,.02);
+    border:1px solid rgba(255,255,255,.05);
+    border-radius:12px;
+    padding:1rem 1.25rem;
+    font-size:.8rem;
+    color:#7a8aa4;
+    line-height:1.6;
+    backdrop-filter:blur(6px);
+    transition:border-color .3s;
+  }
+  .foot-note:hover{border-color:rgba(255,255,255,.09);}
+  .foot-note strong{color:#e1e7ef;font-weight:500;}
+
+  /* entry animation */
+  .card{opacity:0;transform:translateY(18px);animation:fadeUp .5s ease forwards;}
+  .card:nth-child(1){animation-delay:.05s;}
+  .card:nth-child(2){animation-delay:.12s;}
+  .card:nth-child(3){animation-delay:.2s;}
+  .card:nth-child(4){animation-delay:.28s;}
+  .status-bar{opacity:0;animation:fadeUp .45s ease .01s forwards;}
+  @keyframes fadeUp{to{opacity:1;transform:translateY(0);}}
 </style>
 </head>
 <body>
 <div class="wrap">
-<div class="top">
-  <span style="font-size:2rem;">&#x1F6A2;</span>
-  <h1>Bateau-Atelier</h1>
-  <a href="/dashboard">&larr; Retour</a>
-</div>
-<p class="subtitle">4 profils, 4 tableaux de bord. Choisis ce que tu veux faire aujourd'hui.</p>
 
-<div class="grid">
-  <div class="card">
-    <div class="ico">&#x1F4DD;</div>
-    <h3>Écrivain</h3>
-    <span class="badge b1">IDO</span>
-    <div class="desc">Chantier littéraire — tes 6 livres SF, le tétraèdre, les brouillons</div>
-    <ul>
-      <li>Pages du site IDO (:8090)</li>
-      <li>Tétraèdre Fiske&times;Haidt</li>
-      <li>Notes et brouillons en cours</li>
-      <li>Journal d'écriture</li>
-    </ul>
-    <div class="mini-dash">
-      <div class="row"><span>Dernière note</span><span class="stat">hier</span></div>
-      <div class="row"><span>Chapitres en cours</span><span class="stat">3</span></div>
+  <!-- ── Top ── -->
+  <div class="top">
+    <span style="font-size:2rem;line-height:1;">&#x1F6A2;</span>
+    <h1>Bateau-Atelier</h1>
+    <a class="back-link" href="/dashboard">&larr; Retour</a>
+  </div>
+  <p class="subtitle">4 profils, 4 tableaux de bord. Choisis ce que tu veux faire aujourd'hui.</p>
+
+  <!-- ── Live Status Bar ── -->
+  <div class="status-bar" id="statusBar">
+    <span class="status-label">&#9881; Services</span>
+    <span class="status-svc" data-svc="hermes">
+      <span class="status-dot loading"></span>
+      <span class="svc-name">hermes</span><span class="svc-label">:8642</span>
+    </span>
+    <span class="status-svc" data-svc="ido">
+      <span class="status-dot loading"></span>
+      <span class="svc-name">ido</span><span class="svc-label">:8090</span>
+    </span>
+    <span class="status-svc" data-svc="ollama">
+      <span class="status-dot loading"></span>
+      <span class="svc-name">ollama</span><span class="svc-label">:11434</span>
+    </span>
+    <span class="status-svc" data-svc="home_asst">
+      <span class="status-dot loading"></span>
+      <span class="svc-name">home_asst</span><span class="svc-label">:8123</span>
+    </span>
+    <span class="sep">|</span>
+    <div class="sys-info" id="sysInfo">
+      <span>Uptime <span class="num" id="sUptime">--</span></span>
+      <span>RAM <span class="num" id="sRam">--</span></span>
+      <span>Disk <span class="num" id="sDisk">--</span></span>
+      <span>GPU <span class="num" id="sGpu">--</span></span>
     </div>
   </div>
 
-  <div class="card">
-    <div class="ico">&#x2699;</div>
-    <h3>Ingénieur</h3>
-    <span class="badge b2">DevOps</span>
-    <div class="desc">Salle des machines — GPU, Ollama, Hermes, ECC, GitHub</div>
-    <ul>
-      <li>Statut GPU / RAM / disque</li>
-      <li>Modèles Ollama disponibles</li>
-      <li>Sessions Hermes récentes</li>
-      <li>Workflow ECC (plan &rarr; test &rarr; review)</li>
-    </ul>
-    <div class="mini-dash">
-      <div class="row"><span>GPU (RTX 4060)</span><span class="stat">12&deg;C, libre</span></div>
-      <div class="row"><span>Dernier commit</span><span class="stat">aujourd'hui</span></div>
+  <!-- ── Cards ── -->
+  <div class="grid">
+    <div class="card c1">
+      <div class="ico">&#x1F4DD;</div>
+      <h3>Écrivain</h3>
+      <span class="badge b1">IDO</span>
+      <div class="desc">Chantier littéraire — tes 6 livres SF, le tétraèdre, les brouillons</div>
+      <ul>
+        <li>Pages du site IDO (:8090)</li>
+        <li>Tétraèdre Fiske&times;Haidt</li>
+        <li>Notes et brouillons en cours</li>
+        <li>Journal d'écriture</li>
+      </ul>
+      <div class="mini-dash">
+        <div class="row"><span>Dernière note</span><span class="stat">hier</span></div>
+        <div class="row"><span>Chapitres en cours</span><span class="stat">3</span></div>
+      </div>
+    </div>
+
+    <div class="card c2">
+      <div class="ico">&#x2699;</div>
+      <h3>Ingénieur</h3>
+      <span class="badge b2">DevOps</span>
+      <div class="desc">Salle des machines — GPU, Ollama, Hermes, ECC, GitHub</div>
+      <ul>
+        <li>Statut GPU / RAM / disque</li>
+        <li>Modèles Ollama disponibles</li>
+        <li>Sessions Hermes récentes</li>
+        <li>Workflow ECC (plan &rarr; test &rarr; review)</li>
+      </ul>
+      <div class="mini-dash">
+        <div class="row"><span>GPU (RTX 4060)</span><span class="stat">12&deg;C, libre</span></div>
+        <div class="row"><span>Dernier commit</span><span class="stat">aujourd'hui</span></div>
+      </div>
+    </div>
+
+    <div class="card c3">
+      <div class="ico">&#x1F3B8;</div>
+      <h3>Musicien</h3>
+      <span class="badge b3">Studio</span>
+      <div class="desc">Création musicale — paroles, accords, prompts IA</div>
+      <ul>
+        <li>Paroles et grilles d'accords</li>
+        <li>Prompts Suno / génération</li>
+        <li>Bibliothèque audio</li>
+      </ul>
+      <div class="mini-dash">
+        <div class="row"><span>Morceaux en cours</span><span class="stat">2</span></div>
+      </div>
+    </div>
+
+    <div class="card c4">
+      <div class="ico">&#x1F30D;</div>
+      <h3>Explorateur</h3>
+      <span class="badge b4">Découverte</span>
+      <div class="desc">Tourne autour — apprentissage visuel, 3D, cartes mentales</div>
+      <ul>
+        <li>Carte des connaissances IDO</li>
+        <li>Visualisations 3D (bbycroft)</li>
+        <li>Sujets du moment</li>
+      </ul>
     </div>
   </div>
 
-  <div class="card">
-    <div class="ico">&#x1F3B8;</div>
-    <h3>Musicien</h3>
-    <span class="badge b3">Studio</span>
-    <div class="desc">Création musicale — paroles, accords, prompts IA</div>
-    <ul>
-      <li>Paroles et grilles d'accords</li>
-      <li>Prompts Suno / génération</li>
-      <li>Bibliothèque audio</li>
-    </ul>
-    <div class="mini-dash">
-      <div class="row"><span>Morceaux en cours</span><span class="stat">2</span></div>
-    </div>
+  <div class="foot-note">
+    <strong>Aperçu minimal.</strong>
+    Chaque profil sera enrichi au fil des sessions. Tu choisis un profil, l'app te montre les outils et infos adaptés.
   </div>
 
-  <div class="card">
-    <div class="ico">&#x1F30D;</div>
-    <h3>Explorateur</h3>
-    <span class="badge b4">Découverte</span>
-    <div class="desc">Tourne autour — apprentissage visuel, 3D, cartes mentales</div>
-    <ul>
-      <li>Carte des connaissances IDO</li>
-      <li>Visualisations 3D (bbycroft)</li>
-      <li>Sujets du moment</li>
-    </ul>
-  </div>
 </div>
 
-<div style="background:rgba(240,136,62,.08);border:1px solid #30363d;border-radius:8px;padding:1rem;margin-top:1.5rem;font-size:.85rem;color:#8b949e;">
-  <strong style="color:#f0f6fc;">Aperçu minimal.</strong> 
-  Chaque profil sera enrichi au fil des sessions. Tu choisis un profil, l'app te montre les outils et infos adaptés.
-</div>
+<script>
+(function(){
+  const barEl = document.getElementById('statusBar');
+  const svcEls = barEl.querySelectorAll('[data-svc]');
+  const statusMap = {hermes:0, ido:0, ollama:0, home_asst:0};
+  const sysEls = {
+    uptime: document.getElementById('sUptime'),
+    ram: document.getElementById('sRam'),
+    disk: document.getElementById('sDisk'),
+    gpu: document.getElementById('sGpu'),
+  };
 
-</div></body></html>
+  function setDot(el, state){
+    const dot = el.querySelector('.status-dot');
+    if(!dot)return;
+    dot.className = 'status-dot';
+    if(state === 1) dot.classList.add('on');
+    else if(state === 0) dot.classList.add('off');
+    else dot.classList.add('loading');
+  }
+
+  async function fetchStatus(){
+    try{
+      const r = await fetch('/api/status');
+      if(!r.ok) throw new Error(r.status);
+      const data = await r.json();
+      const svcs = data.services||{};
+      svcEls.forEach(el => {
+        const name = el.dataset.svc;
+        const s = svcs[name];
+        if(s && (s.on === true || s.on === 1)){ setDot(el,1); statusMap[name]=1; }
+        else{ setDot(el,0); statusMap[name]=0; }
+      });
+      const sys = data.system||{};
+      if(sys.uptime_h != null) sysEls.uptime.textContent = sys.uptime_h + 'h';
+      if(sys.ram && sys.ram.avail_gb != null && sys.ram.total_gb != null)
+        sysEls.ram.textContent = Math.round(sys.ram.avail_gb) + '/' + Math.round(sys.ram.total_gb) + ' GB';
+      if(sys.disk && sys.disk.free_gb != null && sys.disk.total_gb != null)
+        sysEls.disk.textContent = Math.round(sys.disk.free_gb) + '/' + Math.round(sys.disk.total_gb) + ' GB';
+      if(sys.gpu && sys.gpu.length){
+        const g = sys.gpu[0];
+        sysEls.gpu.textContent = g.name.split(' ').slice(0,2).join(' ') + ' ' + (g.temp||'--') + '°C';
+      }
+    }catch(e){
+      svcEls.forEach(el => setDot(el,-1));
+    }
+  }
+
+  fetchStatus();
+  setInterval(fetchStatus, 15000);
+})();
+</script>
+</body>
+</html>

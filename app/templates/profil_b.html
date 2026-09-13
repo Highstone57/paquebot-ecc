@@ -3,95 +3,579 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Journal de Bord — Aperçu</title>
+<title>Journal de Bord — Paquebot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  *{margin:0;padding:0;box-sizing:border-box;}
-  body{background:#0d1117;color:#c9d1d9;font-family:system-ui,-apple-system,sans-serif;padding:1rem;}
-  .wrap{max-width:900px;margin:0 auto;}
-  .top{display:flex;align-items:center;gap:1rem;padding:1rem 0;flex-wrap:wrap;}
-  .top h1{font-size:1.4rem;flex:1;}
-  .top a{color:#58a6ff;text-decoration:none;font-size:.85rem;}
-  .top a:hover{text-decoration:underline;}
-  .subtitle{color:#8b949e;font-size:.85rem;margin-bottom:1.5rem;}
-  .grid{display:grid;grid-template-columns:1fr;gap:1rem;}
-  @media(min-width:600px){.grid{grid-template-columns:1fr 1fr;}}
-  .card{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:1.5rem;cursor:pointer;transition:border-color .2s;}
-  .card:hover{border-color:#58a6ff;}
-  .card .ico{font-size:1.5rem;margin-bottom:.3rem;}
-  .card h3{font-size:.95rem;}
-  .card .url{color:#484f58;font-family:monospace;font-size:.75rem;margin:.2rem 0;}
-  .card .stat{color:#8b949e;font-size:.8rem;}
-  .card .stat .up{color:#3fb950;}
-  .card .stat .down{color:#f85149;}
-  .card .badge{display:inline-block;font-size:.65rem;padding:2px 6px;border-radius:4px;font-weight:600;}
-  .badge-on{background:rgba(63,185,80,.15);color:#3fb950;}
-  .badge-off{background:rgba(248,81,73,.15);color:#f85149;}
-  .badge-warn{background:rgba(210,153,34,.15);color:#d29922;}
-  .meta{background:rgba(88,166,255,.06);border:1px solid #30363d;border-radius:8px;padding:1rem;margin-top:1.5rem;font-size:.85rem;color:#8b949e;}
+  :root {
+    --bg-primary: #0a0a1a;
+    --bg-secondary: #12122a;
+    --accent-purple: #7c3aed;
+    --accent-blue: #3b82f6;
+    --accent-cyan: #06b6d4;
+    --text-primary: #e2e8f0;
+    --text-secondary: #94a3b8;
+    --glass-bg: rgba(18, 18, 42, 0.65);
+    --glass-border: rgba(124, 58, 237, 0.15);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    --status-on: #22c55e;
+    --status-off: #ef4444;
+    --status-unknown: #eab308;
+    --card-radius: 16px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Ambient background glow effect */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background:
+      radial-gradient(ellipse at 20% 20%, rgba(124, 58, 237, 0.12) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(59, 130, 246, 0.10) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(6, 182, 212, 0.04) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+    animation: ambientPulse 10s ease-in-out infinite alternate;
+  }
+
+  @keyframes ambientPulse {
+    0%   { transform: translate(0, 0) scale(1); opacity: 0.8; }
+    100% { transform: translate(2%, 2%) scale(1.05); opacity: 1; }
+  }
+
+  .wrap {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* --- Top Bar --- */
+  .top {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.25rem;
+    opacity: 0;
+    animation: fadeSlideIn 0.6s ease forwards;
+  }
+
+  .top .brand-icon {
+    font-size: 1.8rem;
+    line-height: 1;
+  }
+
+  .top h1 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, #c084fc, #60a5fa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    flex: 1;
+  }
+
+  .top a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0.4rem 0.9rem;
+    border-radius: 8px;
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+
+  .top a:hover {
+    border-color: var(--accent-purple);
+    color: var(--text-primary);
+    background: rgba(124, 58, 237, 0.2);
+    transform: translateY(-1px);
+  }
+
+  .subtitle {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 400;
+    margin-bottom: 2rem;
+    padding-left: 0.25rem;
+    opacity: 0;
+    animation: fadeSlideIn 0.6s ease 0.1s forwards;
+  }
+
+  /* --- Grid --- */
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  @media (min-width: 640px) {
+    .grid { grid-template-columns: 1fr 1fr; }
+  }
+
+  @media (min-width: 900px) {
+    .grid { grid-template-columns: 1fr 1fr 1fr; }
+  }
+
+  /* --- Service Card --- */
+  .card {
+    position: relative;
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    border-radius: var(--card-radius);
+    padding: 1.5rem 1.25rem;
+    cursor: pointer;
+    box-shadow: var(--glass-shadow);
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent-purple), var(--accent-blue), transparent);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .card:hover {
+    border-color: rgba(124, 58, 237, 0.35);
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: 0 12px 48px rgba(124, 58, 237, 0.15), var(--glass-shadow);
+  }
+
+  .card:hover::before { opacity: 1; }
+
+  /* Staggered entry animation */
+  .card:nth-child(1) { animation: cardEntry 0.5s ease 0.1s forwards; }
+  .card:nth-child(2) { animation: cardEntry 0.5s ease 0.18s forwards; }
+  .card:nth-child(3) { animation: cardEntry 0.5s ease 0.26s forwards; }
+  .card:nth-child(4) { animation: cardEntry 0.5s ease 0.34s forwards; }
+  .card:nth-child(5) { animation: cardEntry 0.5s ease 0.42s forwards; }
+  .card:nth-child(6) { animation: cardEntry 0.5s ease 0.50s forwards; }
+
+  @keyframes cardEntry {
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+
+  @keyframes fadeSlideIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .card .ico {
+    font-size: 1.6rem;
+    line-height: 1;
+    margin-bottom: 0.1rem;
+  }
+
+  .card .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .card h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .card .url {
+    color: var(--text-secondary);
+    font-family: 'Inter', monospace;
+    font-size: 0.75rem;
+    font-weight: 400;
+    opacity: 0.7;
+    word-break: break-all;
+  }
+
+  /* --- Status Dot --- */
+  .status-dot {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.78rem;
+    font-weight: 500;
+    margin-top: 0.15rem;
+  }
+
+  .status-dot .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    flex-shrink: 0;
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .status-dot .dot.on {
+    background: var(--status-on);
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.5);
+  }
+
+  .status-dot .dot.off {
+    background: var(--status-off);
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.4);
+  }
+
+  .status-dot .dot.unknown {
+    background: var(--status-unknown);
+    box-shadow: 0 0 8px rgba(234, 179, 8, 0.3);
+  }
+
+  .status-dot .dot.pulse {
+    animation: pulseDot 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pulseDot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.3); }
+  }
+
+  .status-dot .label {
+    color: var(--text-secondary);
+  }
+
+  /* --- Statut Système Card --- */
+  .card.status-card {
+    cursor: default;
+    grid-column: 1 / -1;
+  }
+
+  .card.status-card:hover {
+    transform: translateY(-2px) scale(1.005);
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+  }
+
+  @media (max-width: 600px) {
+    .stats-grid { grid-template-columns: 1fr; }
+  }
+
+  .stat-item {
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 10px;
+    padding: 0.7rem 0.85rem;
+    border: 1px solid rgba(124, 58, 237, 0.08);
+  }
+
+  .stat-item .stat-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+    opacity: 0.7;
+    margin-bottom: 0.2rem;
+  }
+
+  .stat-item .stat-value {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .stat-item .stat-bar {
+    height: 4px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.06);
+    margin-top: 0.35rem;
+    overflow: hidden;
+  }
+
+  .stat-item .stat-bar .fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.6s ease;
+    background: linear-gradient(90deg, var(--accent-purple), var(--accent-cyan));
+  }
+
+  /* GPU sub-stats inline */
+  .gpu-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+  }
+
+  .gpu-stats span {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+  }
+
+  /* --- Loading skeleton --- */
+  .skeleton {
+    background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 6px;
+    display: inline-block;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* --- Refresh indicator --- */
+  .refresh-bar {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    font-size: 0.72rem;
+    color: var(--text-secondary);
+    opacity: 0.6;
+  }
+
+  .refresh-bar .countdown {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* --- Scrollbar --- */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg-primary); }
+  ::-webkit-scrollbar-thumb { background: rgba(124, 58, 237, 0.3); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(124, 58, 237, 0.5); }
+
+  /* --- Utility --- */
+  .text-gradient {
+    background: linear-gradient(135deg, #c084fc, #60a5fa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .mt-1 { margin-top: 0.25rem; }
+  .mb-1 { margin-bottom: 0.25rem; }
 </style>
 </head>
 <body>
+
 <div class="wrap">
-<div class="top">
-  <span style="font-size:2rem;">&#x1F4CB;</span>
-  <h1>Journal de Bord</h1>
-  <a href="/dashboard">&larr; Retour</a>
-</div>
-<p class="subtitle">Tous tes services en un coup d'&#x153;il — connecte-toi, pas besoin de retenir les ports.</p>
 
-<div class="grid">
-  <div class="card">
-    <div class="ico">&#x1F916;</div>
-    <h3>Hermes (Gateway)</h3>
-    <div class="url">localhost:8642</div>
-    <span class="badge badge-on">&#x25CF; En ligne</span>
-    <div class="stat">Chat avec ton assistant IA local</div>
+  <!-- Top Bar -->
+  <div class="top">
+    <span class="brand-icon">📋</span>
+    <h1>Journal de Bord</h1>
+    <a href="/dashboard">
+      <span>&larr;</span> Retour
+    </a>
   </div>
 
-  <div class="card">
-    <div class="ico">&#x1F4DC;</div>
-    <h3>Site IDO</h3>
-    <div class="url">localhost:8090</div>
-    <span class="badge badge-on">&#x25CF; En ligne</span>
-    <div class="stat">Tes livres, connaissances, tétra&egrave;dre</div>
+  <p class="subtitle">
+    Tous tes services en un coup d'œil &mdash; connecte-toi sans retenir les ports.
+  </p>
+
+  <!-- Refresh status bar -->
+  <div class="refresh-bar">
+    <span>Actualisation automatique</span>
+    <span class="countdown" id="countdown">15s</span>
   </div>
 
-  <div class="card">
-    <div class="ico">&#x1F3E0;</div>
-    <h3>Home Assistant</h3>
-    <div class="url">localhost:8123</div>
-    <span class="badge badge-warn">&#x25CF; Configuré</span>
-    <div class="stat">Contrôle de la maison</div>
-  </div>
+  <!-- Service Cards Grid -->
+  <div class="grid" id="servicesGrid"></div>
 
-  <div class="card">
-    <div class="ico">&#x1F504;</div>
-    <h3>Ollama</h3>
-    <div class="url">localhost:11434</div>
-    <span class="badge badge-on">&#x25CF; En ligne</span>
-    <div class="stat">Mod&egrave;les locaux (RTX 4060)</div>
-  </div>
-
-  <div class="card">
-    <div class="ico">&#x1F30D;</div>
-    <h3>GitHub — Highstone57</h3>
-    <div class="url">github.com/Highstone57</div>
-    <span class="badge badge-on">&#x25CF; Connecté</span>
-    <div class="stat">Paquebot-OS &middot; personal-agent-os &middot; paquebot-ecc</div>
-  </div>
-
-  <div class="card">
-    <div class="ico">&#x1F3A5;</div>
-    <h3>Statut Syst&egrave;me</h3>
-    <div class="url">Ubuntu &middot; RTX 4060 &middot; 24G RAM</div>
-    <span class="badge badge-on">&#x25CF; 12h d'uptime</span>
-    <div class="stat">&#x1F4CA; GPU libre &middot; RAM 8G/24G &middot; Disque 120G/500G</div>
-  </div>
 </div>
 
-<div class="meta">
-  <strong style="color:#f0f6fc;">Aperçu minimal.</strong>
-  Chaque carte deviendra un embed ou lien direct. Tu cliques sur Hermes &rarr; tu arrives sur le chat. Tu cliques IDO &rarr; le site s'ouvre. Un vrai hub.
-</div>
+<script>
+(function() {
+  'use strict';
 
-</div></body></html>
+  const API_URL = '/api/status';
+  const REFRESH_INTERVAL = 15000; // 15s
+
+  // Service definitions: key must match /api/status services key
+  const SERVICES = [
+    { key: 'hermes',   icon: '🤖', label: 'Hermes (Gateway)',       url: 'http://localhost:8642' },
+    { key: 'ido',      icon: '📜', label: 'Site IDO',               url: 'http://localhost:8090' },
+    { key: 'home_asst',icon: '🏠', label: 'Home Assistant',          url: 'http://localhost:8123' },
+    { key: 'ollama',   icon: '🔄', label: 'Ollama',                 url: 'http://localhost:11434' },
+    { key: 'app',      icon: '🌍', label: 'GitHub — Highstone57',   url: 'https://github.com/Highstone57' }
+  ];
+
+  const grid = document.getElementById('servicesGrid');
+  const countdownEl = document.getElementById('countdown');
+
+  let statusData = null;
+  let countdownVal = REFRESH_INTERVAL / 1000;
+
+  // ----- Card builders -----
+
+  function buildServiceCard(svc, status) {
+    const dotClass = status === true ? 'on' : (status === false ? 'off' : 'unknown');
+    const dotLabel = status === true ? 'En ligne' : (status === false ? 'Hors ligne' : 'Inconnu');
+
+    const div = document.createElement('div');
+    div.className = 'card';
+    div.setAttribute('data-key', svc.key);
+    div.setAttribute('onclick', `window.open('${svc.url}', '_blank')`);
+    div.innerHTML = `
+      <div class="ico">${svc.icon}</div>
+      <div class="card-header">
+        <h3>${svc.label}</h3>
+      </div>
+      <div class="url">${svc.url.replace(/^https?:\/\//, '')}</div>
+      <div class="status-dot">
+        <span class="dot ${dotClass} pulse"></span>
+        <span class="label">${dotLabel}</span>
+      </div>
+    `;
+    return div;
+  }
+
+  function buildStatusCard(data) {
+    if (!data || !data.system) {
+      const div = document.createElement('div');
+      div.className = 'card status-card';
+      div.innerHTML = `<h3>📊 Statut Système</h3><div class="stat-value" style="color:var(--text-secondary);margin-top:0.5rem;">Données non disponibles</div>`;
+      return div;
+    }
+
+    const sys = data.system;
+    const ramPct = sys.ram && sys.ram.total_gb ? Math.round((1 - sys.ram.avail_gb / sys.ram.total_gb) * 100) : 0;
+    const diskPct = sys.disk && sys.disk.total_gb ? Math.round((1 - sys.disk.free_gb / sys.disk.total_gb) * 100) : 0;
+    const gpu = sys.gpu && sys.gpu.length > 0 ? sys.gpu[0] : null;
+    const uptime = sys.uptime_h != null ? Math.round(sys.uptime_h * 10) / 10 : null;
+
+    const ramUsed = sys.ram ? (sys.ram.total_gb - sys.ram.avail_gb).toFixed(1) : '?';
+    const ramTotal = sys.ram ? sys.ram.total_gb.toFixed(1) : '?';
+    const diskFree = sys.disk ? sys.disk.free_gb.toFixed(1) : '?';
+    const diskTotal = sys.disk ? sys.disk.total_gb.toFixed(1) : '?';
+
+    const div = document.createElement('div');
+    div.className = 'card status-card';
+
+    let gpuHtml = '';
+    if (gpu) {
+      gpuHtml = `
+        <div class="gpu-stats">
+          <span>🎮 ${gpu.name || 'GPU'}</span>
+          <span>🌡️ ${gpu.temp != null ? gpu.temp + '°C' : '?'}</span>
+          <span>⚡ ${gpu.util != null ? gpu.util + '%' : '?'}</span>
+          <span>💾 ${gpu.mem_used != null ? (gpu.mem_used / 1024).toFixed(1) : '?'}G / ${gpu.mem_total != null ? (gpu.mem_total / 1024).toFixed(1) : '?'}G</span>
+        </div>
+      `;
+    }
+
+    div.innerHTML = `
+      <div class="ico">📊</div>
+      <h3>Statut Système</h3>
+      ${uptime != null ? `<div class="url">Uptime: ${uptime}h</div>` : '<div class="url">Système</div>'}
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-label">💾 RAM</div>
+          <div class="stat-value">${ramUsed}G / ${ramTotal}G utilisée</div>
+          <div class="stat-bar"><div class="fill" style="width:${ramPct}%"></div></div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">💿 Disque</div>
+          <div class="stat-value">${diskFree}G / ${diskTotal}G libre</div>
+          <div class="stat-bar"><div class="fill" style="width:${diskPct}%"></div></div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">🎮 GPU</div>
+          <div class="stat-value">${gpu ? (gpu.util != null ? gpu.util + '%' : '?') : 'N/A'}</div>
+          ${gpuHtml ? '' : '<div class="stat-bar" style="height:0"></div>'}
+        </div>
+      </div>
+      ${gpuHtml}
+    `;
+
+    return div;
+  }
+
+  // ----- Render -----
+
+  function render(data) {
+    statusData = data;
+    grid.innerHTML = '';
+
+    // Service cards
+    for (const svc of SERVICES) {
+      const svcStatus = data && data.services && data.services[svc.key];
+      const isOn = svcStatus && svcStatus.on === true;
+      const card = buildServiceCard(svc, isOn);
+      grid.appendChild(card);
+    }
+
+    // Status card
+    const statusCard = buildStatusCard(data);
+    grid.appendChild(statusCard);
+  }
+
+  // ----- Fetch & update -----
+
+  async function fetchStatus() {
+    try {
+      const resp = await fetch(API_URL);
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const data = await resp.json();
+      render(data);
+    } catch (err) {
+      console.warn('[profil_b] API fetch failed:', err);
+      // If we have old data, keep showing it. Otherwise render unknowns.
+      if (!statusData) render(null);
+    }
+  }
+
+  // Countdown timer
+  function tickCountdown() {
+    countdownVal -= 1;
+    if (countdownVal <= 0) {
+      countdownVal = REFRESH_INTERVAL / 1000;
+      fetchStatus();
+    }
+    countdownEl.textContent = countdownVal + 's';
+  }
+
+  // Initial load
+  fetchStatus();
+
+  // Poll every 1s for countdown, fetch every 15s
+  setInterval(tickCountdown, 1000);
+})();
+</script>
+
+</body>
+</html>
