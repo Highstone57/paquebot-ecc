@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RAG — Connaissances</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:#0a0e17;color:#e8edf5;font-family:'Inter',sans-serif;padding:1rem;min-height:100vh;}
+  .wrap{max-width:960px;margin:0 auto;}
+  .top{display:flex;align-items:center;gap:1rem;padding:1rem 0;flex-wrap:wrap;}
+  .top h1{font-size:1.4rem;flex:1;}
+  .top a{color:#58a6ff;text-decoration:none;font-size:.85rem;}
+  .stats{font-size:.75rem;color:#8892b0;text-align:center;margin-bottom:1rem;}
+  .search-box{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:1rem;margin-bottom:1rem;}
+  .search-box input{width:100%;padding:.8rem;background:#0d1117;border:1px solid #30363d;border-radius:8px;color:#f0f6fc;font-size:1rem;}
+  .search-box button{width:100%;margin-top:.6rem;padding:.6rem;background:#238636;border:none;border-radius:8px;color:#fff;font-size:.9rem;font-weight:600;cursor:pointer;}
+  .search-box button:hover{background:#2ea043;}
+  .search-box button:disabled{opacity:.5;cursor:wait;}
+  .result{background:#161b22;border:1px solid #30363d;border-radius:12px;padding:1rem;margin-bottom:.8rem;transition:border-color .2s;}
+  .result:hover{border-color:#58a6ff;}
+  .result .file{color:#58a6ff;font-size:.7rem;font-family:monospace;margin-bottom:.3rem;}
+  .result .score{color:#f0883e;font-size:.7rem;}
+  .result .text{font-size:.85rem;color:#c9d1d9;line-height:1.5;}
+  .result .source{color:#8b949e;font-size:.7rem;margin-top:.3rem;}
+  .empty{text-align:center;color:#484f58;padding:3rem 1rem;font-size:.9rem;line-height:1.6;}
+  .loading{text-align:center;color:#8892b0;font-size:.8rem;display:none;}
+  .kb-grid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-bottom:1rem;}
+  @media(max-width:600px){.kb-grid{grid-template-columns:1fr;}}
+  .kb-item{background:#161b22;border:1px solid #30363d;border-radius:8px;padding:.5rem;text-align:center;font-size:.8rem;color:#8b949e;}
+  .kb-item strong{color:#58a6ff;font-size:1.2rem;display:block;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <span style="font-size:1.5rem;">&#x1F50D;</span>
+    <h1>RAG — Exploration des Connaissances</h1>
+    <a href="/dashboard">&larr; Retour</a>
+  </div>
+
+  <div class="stats" id="stats">Index chargement...</div>
+  <div class="kb-grid" id="kb-grid"></div>
+
+  <div class="search-box">
+    <input id="query" placeholder="Pose une question sur tous tes documents..." autofocus>
+    <button id="search-btn" onclick="search()">&#x1F50D; Chercher</button>
+  </div>
+  <div class="loading" id="loading">Recherche en cours...</div>
+  <div id="results"></div>
+</div>
+
+<script>
+async function search(){
+  const q=document.getElementById('query').value.trim();
+  if(!q)return;
+  const btn=document.getElementById('search-btn');
+  const ld=document.getElementById('loading');
+  const r=document.getElementById('results');
+  btn.disabled=true;ld.style.display='block';r.innerHTML='';
+  try{
+    const res=await fetch('/api/rag/search',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({q})});
+    const d=await res.json();
+    if(!d.results||d.results.length===0){r.innerHTML='<div class="empty">Aucun résultat trouvé</div>';return;}
+    r.innerHTML=d.results.map((x,i)=>`<div class="result"><div class="file">${x.file.split('/').pop()}</div><div class="score">score: ${x.score}</div><div class="text">${x.text}</div><div class="source">${x.file}</div></div>`).join('');
+  }catch(e){r.innerHTML='<div class="empty">Erreur: '+e.message+'</div>';}
+  finally{btn.disabled=false;ld.style.display='none';}
+}
+
+// Stats
+(async()=>{
+  try{
+    const r=await fetch('/api/status/detailed');
+    const d=await r.json();
+    const s=d.system||{};
+    document.getElementById('stats').textContent=`${d.ollama_models?.length||0} modèles IA · GPU ${s.gpu?.[0]?.temp||'?'}°C · RAM ${s.ram?.avail_gb||'?'}/${s.ram?.total_gb||'?'} Go`;
+    document.getElementById('kb-grid').innerHTML=
+      '<div class="kb-item"><strong>4</strong>dossiers indexés</div>'+
+      '<div class="kb-item"><strong>401</strong>chunks de connaissances</div>';
+  }catch(e){}
+})();
+
+// Enter to search
+document.getElementById('query').addEventListener('keydown',e=>{if(e.key==='Enter')search();});
+</script>
+</body>
+</html>

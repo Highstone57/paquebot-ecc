@@ -127,6 +127,29 @@ def api_status():
     return data
 
 
+# ── RAG API ──────────────────────────────────────────────────────
+
+class RAGQuery(BaseModel):
+    q: str = ""
+
+
+@app.post("/api/rag/search")
+def rag_search(body: RAGQuery):
+    from app.rag_engine import search
+    results = search(body.q)
+    return {"results": results}
+
+
+@app.post("/api/rag/index")
+def rag_index():
+    from app.rag_engine import index_all
+    try:
+        index_all()
+        return {"status": "ok", "message": "Indexation terminée"}
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
+
+
 @app.get("/api/status/detailed")
 def api_status_detailed():
     """Données détaillées pour le Journal de Bord + Console."""
@@ -248,6 +271,11 @@ def profil_b():
 @app.get("/dashboard/c", response_class=HTMLResponse)
 def profil_c():
     return _html("profil_c.html")
+
+
+@app.get("/dashboard/rag", response_class=HTMLResponse)
+def rag_page():
+    return _html("rag.html")
 
 
 # ── Fin ───────────────────────────────────────────────────────────
